@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Download GeoIP DB
+        run: wget -qO GeoLite2-Country.mmdb "https://github.com/Loyalsoldier/geoip/releases/latest/download/Country.mmdb"
+
       - name: Fetch nodes
         run: python fetch.py
 
