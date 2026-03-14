@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-03-14 06:33:57",
+  "updated_at": "2026-03-14 06:39:51",
   "total_fetched": 1119,
   "unique_nodes": 793,
-  "alive_nodes": 588,
+  "alive_nodes": 585,
   "country_stats": {
     "AE": 1,
     "AL": 4,
@@ -27,7 +27,7 @@
     "IL": 1,
     "IN": 3,
     "JP": 34,
-    "KR": 49,
+    "KR": 47,
     "KZ": 1,
     "LT": 1,
     "LV": 2,
@@ -40,7 +40,7 @@
     "SA": 1,
     "SC": 5,
     "SE": 4,
-    "SG": 15,
+    "SG": 14,
     "TH": 3,
     "TR": 6,
     "UA": 1,
