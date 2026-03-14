@@ -4,17 +4,8 @@
 
 sources:
   # --- 大型聚合仓库 ---
-  - name: "NoMoreWalls"
+  - name: "AutoMergePublicNodes"
     url: "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"
-
-  - name: "free18/v2ray"
-    url: "https://raw.githubusercontent.com/free18/v2ray/main/v.txt"
-
-  - name: "shaoyouvip/free"
-    url: "https://raw.githubusercontent.com/shaoyouvip/free/main/base64.txt"
-
-  - name: "getNode"
-    url: "https://raw.githubusercontent.com/a2470982985/getNode/main/v2ray.txt"
 
   # --- Barabama/FreeNodes 各子源 ---
   - name: "Barabama/nodefree"
@@ -32,11 +23,18 @@ sources:
   - name: "Barabama/yudou66"
     url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/yudou66.txt"
 
-  # --- 动态日期源 ---
-  - name: "v2rayfree/AM"
-    url_template: "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/v{date}1"
+  # --- proxypool 主聚合源 ---
+  - name: "proxypool/clash-meta"
+    url: "https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta.yaml"
+
+  - name: "proxypool/clash-meta-2"
+    url: "https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta-2.yaml"
+
+  # --- clashfree 每日快照 ---
+  - name: "clashfree/daily"
+    url_template: "https://raw.githubusercontent.com/free-nodes/clashfree/main/clash{date}.yml"
     date_format: "%Y%m%d"
 
-  - name: "v2rayfree/PM"
-    url_template: "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/v{date}2"
-    date_format: "%Y%m%d"
+  # --- 备用固定订阅源 ---
+  - name: "Pawdroid/sub"
+    url: "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"

@@ -1,6 +1,9 @@
 name: Fetch Nodes
 
-on:
+"on":
+  push:
+    tags:
+      - '*'
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:

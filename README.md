@@ -20,14 +20,13 @@ subscriptions:
 
 ## 数据源
 
-见 [`sources.yaml`](sources.yaml)，当前聚合 11 个公开源：
+见 [`sources.yaml`](sources.yaml)，当前聚合 10 个公开 GitHub 源：
 
-- **NoMoreWalls** (AutoMergePublicNodes) - 最大聚合源
-- **free18/v2ray** - 大量节点
-- **shaoyouvip/free** - 公益节点
+- **chengaopan/AutoMergePublicNodes** - 大型 base64 聚合源
 - **Barabama/FreeNodes** - 多子源爬虫 (nodefree, v2rayshare, wenode 等)
-- **free-nodes/v2rayfree** - 每日更新
-- **a2470982985/getNode** - 每小时更新
+- **snakem982/proxypool** - Clash Meta 聚合池
+- **free-nodes/clashfree** - 每日快照源
+- **Pawdroid/Free-servers** - 固定订阅备用源
 
 ## 更新频率
 
