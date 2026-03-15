@@ -29,7 +29,7 @@ jobs:
         run: wget -qO GeoLite2-Country.mmdb "https://github.com/Loyalsoldier/geoip/releases/latest/download/Country.mmdb"
 
       - name: Fetch nodes
-        run: python fetch.py
+        run: python -u fetch.py
 
       - name: Commit and push
         run: |

@@ -3,10 +3,14 @@
 
 import asyncio
 import base64
+import ipaddress
 import json
 import os
 import socket
+import ssl
+import time
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 from urllib.parse import urlparse, quote
 from urllib.request import urlopen, Request
@@ -25,8 +29,10 @@ PROTOCOLS = (
 )
 
 GEOIP_DB = 'GeoLite2-Country.mmdb'
-TCP_CONCURRENCY = 50
-TCP_TIMEOUT = 5
+TCP_CONCURRENCY = 200
+TCP_TIMEOUT = 3
+FETCH_TIMEOUT = 15
+FETCH_WORKERS = 8
 
 
 # ===== 数据源抓取 =====
@@ -36,7 +42,7 @@ def load_sources(path='sources.yaml'):
         return yaml.safe_load(f)
 
 
-def fetch_url(url, timeout=30):
+def fetch_url(url, timeout=FETCH_TIMEOUT):
     req = Request(url, headers={
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     })
@@ -56,6 +62,39 @@ def resolve_url(source):
         fmt = source.get('date_format', '%Y%m%d')
         return source['url_template'].replace('{date}', now.strftime(fmt))
     return None
+
+
+def fetch_all_sources(config):
+    """多线程并发抓取所有源"""
+    sources = config.get('sources', [])
+    all_nodes = []
+    source_stats = []
+
+    def _fetch_one(src):
+        name = src['name']
+        url = resolve_url(src)
+        if not url:
+            return name, [], 'invalid'
+        try:
+            content = fetch_url(url)
+            if not content:
+                return name, [], 'failed'
+            nodes = parse_nodes(content)
+            return name, nodes, 'ok'
+        except Exception as e:
+            return name, [], 'failed'
+
+    with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
+        futures = {pool.submit(_fetch_one, src): src for src in sources}
+        for future in as_completed(futures):
+            name, nodes, status = future.result()
+            count = len(nodes)
+            icon = '✓' if status == 'ok' else '✗'
+            print(f'  [{icon}] {name}: {count} 个节点')
+            all_nodes.extend(nodes)
+            source_stats.append({'name': name, 'count': count, 'status': status})
+
+    return all_nodes, source_stats
 
 
 # ===== 节点解析 =====
@@ -92,16 +131,6 @@ def parse_nodes(content):
     return nodes
 
 
-def deduplicate(nodes):
-    seen = set()
-    result = []
-    for n in nodes:
-        if n not in seen:
-            seen.add(n)
-            result.append(n)
-    return result
-
-
 def parse_host_port(uri):
     """从节点 URI 提取 (host, port)"""
     try:
@@ -119,18 +148,15 @@ def parse_host_port(uri):
         if uri.startswith('ss://'):
             content = uri[5:].split('#')[0]
             if '@' in content:
-                # SIP002: base64(method:password)@host:port
                 hostport = content.rsplit('@', 1)[1]
                 p = urlparse('http://x@' + hostport)
                 return p.hostname, p.port
             else:
-                # Legacy: base64(method:password@host:port)
                 decoded = base64.b64decode(_pad_b64(content)).decode()
                 hostport = decoded.rsplit('@', 1)[1]
                 host, port = hostport.rsplit(':', 1)
                 return host, int(port)
 
-        # vless, trojan, hy2, hysteria2, hysteria, socks5, socks
         _, rest = uri.split('://', 1)
         p = urlparse('http://' + rest)
         return p.hostname, p.port
@@ -143,18 +169,107 @@ def get_protocol_name(uri):
     return 'hy2' if proto in ('hysteria2', 'hy2') else proto
 
 
-# ===== TCP 测活 =====
+# ===== 预过滤与深度去重 =====
+
+def _is_private_host(host):
+    """检查是否为私有/保留 IP"""
+    try:
+        addr = ipaddress.ip_address(host)
+        return addr.is_private or addr.is_loopback or addr.is_reserved
+    except ValueError:
+        # 域名，检查常见无效域名
+        return host in ('localhost', '127.0.0.1', '0.0.0.0', '::1', '')
+
+
+def prefilter(nodes):
+    """预过滤无效节点"""
+    valid = []
+    skipped = 0
+    for node in nodes:
+        host, port = parse_host_port(node)
+        if not host or not port or port <= 0 or port > 65535:
+            skipped += 1
+            continue
+        if _is_private_host(host):
+            skipped += 1
+            continue
+        valid.append(node)
+    return valid, skipped
+
+
+def deep_deduplicate(nodes):
+    """按 (协议, host, port) 深度去重，保留首次出现的节点"""
+    seen = set()
+    result = []
+    for node in nodes:
+        proto = get_protocol_name(node)
+        host, port = parse_host_port(node)
+        if not host or not port:
+            continue
+        key = (proto, host.lower(), port)
+        if key not in seen:
+            seen.add(key)
+            result.append(node)
+    return result
+
+
+# ===== 测活：L1 TCP + L2 TLS 两层漏斗 =====
+
+TLS_PORTS = {443, 2053, 2083, 2087, 2096, 8443, 8880}
+
+_tls_ctx = ssl.create_default_context()
+_tls_ctx.check_hostname = False
+_tls_ctx.verify_mode = ssl.CERT_NONE
+
 
 async def _check_tcp(host, port):
+    """L1: TCP 连接测试，返回延迟(ms)或 None"""
+    loop = asyncio.get_event_loop()
+    t0 = loop.time()
     try:
         _, w = await asyncio.wait_for(
             asyncio.open_connection(host, port), timeout=TCP_TIMEOUT
         )
+        latency = (loop.time() - t0) * 1000
         w.close()
         await w.wait_closed()
-        return True
+        return latency
     except Exception:
-        return False
+        return None
+
+
+async def _check_tls(host, port, sni=None):
+    """L2: TLS 握手验证，返回延迟(ms)或 None"""
+    loop = asyncio.get_event_loop()
+    t0 = loop.time()
+    try:
+        _, w = await asyncio.wait_for(
+            asyncio.open_connection(host, port, ssl=_tls_ctx,
+                                    server_hostname=sni or host),
+            timeout=TCP_TIMEOUT
+        )
+        latency = (loop.time() - t0) * 1000
+        w.close()
+        await w.wait_closed()
+        return latency
+    except Exception:
+        return None
+
+
+def _extract_sni(uri):
+    """从节点 URI 中提取 SNI"""
+    try:
+        if uri.startswith('vmess://'):
+            raw = uri[8:].split('#')[0]
+            info = json.loads(base64.b64decode(_pad_b64(raw)).decode())
+            return info.get('sni') or info.get('host') or None
+        qs = uri.split('?', 1)[1].split('#')[0] if '?' in uri else ''
+        for param in qs.split('&'):
+            if param.startswith('sni='):
+                return param[4:] or None
+        return None
+    except Exception:
+        return None
 
 
 async def test_alive(nodes):
@@ -168,32 +283,49 @@ async def test_alive(nodes):
             parse_fail += 1
             return None
         async with sem:
-            return node if await _check_tcp(host, port) else None
+            # L1: TCP
+            latency = await _check_tcp(host, port)
+            if latency is None:
+                return None
+            # L2: TLS 端口做 TLS 握手二次验证
+            if port in TLS_PORTS:
+                sni = _extract_sni(node)
+                tls_latency = await _check_tls(host, port, sni)
+                if tls_latency is None:
+                    return None
+                latency = tls_latency
+            return (node, latency)
 
-    results = await asyncio.gather(*[_test(n) for n in nodes])
-    alive = [r for r in results if r is not None]
+    tasks = await asyncio.gather(*[_test(n) for n in nodes])
+    alive = [r for r in tasks if r is not None]
     dead = len(nodes) - len(alive) - parse_fail
-    print(f'  解析失败: {parse_fail} | 存活: {len(alive)} | 失联: {dead}')
-    return alive
+
+    alive.sort(key=lambda x: x[1])
+
+    avg_latency = sum(lat for _, lat in alive) / len(alive) if alive else 0
+    print(f'  存活: {len(alive)} | 失联: {dead} | 解析失败: {parse_fail}')
+    if alive:
+        print(f'  平均延迟: {avg_latency:.0f}ms | 最快: {alive[0][1]:.0f}ms | 最慢: {alive[-1][1]:.0f}ms')
+
+    return [node for node, _ in alive]
 
 
 # ===== 地区分类 =====
 
-def _resolve_ip(host):
+def _resolve_ip(host, dns_cache):
+    if host in dns_cache:
+        return dns_cache[host]
+    ip = None
     try:
-        socket.inet_pton(socket.AF_INET, host)
-        return host
-    except OSError:
-        pass
-    try:
-        socket.inet_pton(socket.AF_INET6, host)
-        return host
-    except OSError:
-        pass
-    try:
-        return socket.getaddrinfo(host, None, socket.AF_INET)[0][4][0]
-    except Exception:
-        return None
+        ipaddress.ip_address(host)
+        ip = host
+    except ValueError:
+        try:
+            ip = socket.getaddrinfo(host, None, socket.AF_INET)[0][4][0]
+        except Exception:
+            pass
+    dns_cache[host] = ip
+    return ip
 
 
 def _country_flag(code):
@@ -229,12 +361,13 @@ def _rename_node(uri, new_name):
 
 
 def classify_and_rename(nodes, reader):
+    dns_cache = {}
     buckets = defaultdict(list)
     for node in nodes:
         host, _ = parse_host_port(node)
         cc = 'XX'
         if host:
-            ip = _resolve_ip(host)
+            ip = _resolve_ip(host, dns_cache)
             if ip:
                 cc = _get_country(ip, reader)
         buckets[cc].append(node)
@@ -254,48 +387,41 @@ def classify_and_rename(nodes, reader):
 # ===== 主流程 =====
 
 async def async_main():
-    config = load_sources()
-    all_nodes = []
-    source_stats = []
+    t_start = time.time()
 
+    config = load_sources()
     print(f'=== 节点聚合 {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} ===\n')
 
-    for src in config.get('sources', []):
-        name = src['name']
-        url = resolve_url(src)
-        if not url:
-            print(f'[!] {name}: URL 无效，跳过')
-            continue
+    # 1. 并发抓取
+    print(f'[1/5] 抓取 {len(config.get("sources", []))} 个源 (并发{FETCH_WORKERS})...')
+    all_nodes, source_stats = fetch_all_sources(config)
+    print(f'  合计: {len(all_nodes)} 个原始节点\n')
 
-        print(f'[*] {name}')
-        content = fetch_url(url)
-        if not content:
-            source_stats.append({'name': name, 'count': 0, 'status': 'failed'})
-            continue
+    # 2. 预过滤
+    print('[2/5] 预过滤无效节点...')
+    valid, skipped = prefilter(all_nodes)
+    print(f'  有效: {len(valid)} | 过滤: {skipped}\n')
 
-        nodes = parse_nodes(content)
-        print(f'    -> {len(nodes)} 个节点')
-        all_nodes.extend(nodes)
-        source_stats.append({'name': name, 'count': len(nodes), 'status': 'ok'})
+    # 3. 深度去重
+    print('[3/5] 深度去重 (协议+地址+端口)...')
+    unique = deep_deduplicate(valid)
+    print(f'  {len(valid)} -> {len(unique)} (去除 {len(valid) - len(unique)} 重复)\n')
 
-    unique = deduplicate(all_nodes)
-    print(f'\n=== 总计 {len(all_nodes)} -> 去重 {len(unique)} ===')
-
-    # 测活
-    print(f'\n=== TCP 测活 (并发{TCP_CONCURRENCY} 超时{TCP_TIMEOUT}s) ===')
+    # 4. 测活
+    print(f'[4/5] 测活: L1 TCP + L2 TLS (并发{TCP_CONCURRENCY} 超时{TCP_TIMEOUT}s)...')
     alive = await test_alive(unique)
 
-    # 地区分类
+    # 5. 地区分类
     country_stats = {}
     if maxminddb and os.path.exists(GEOIP_DB):
-        print(f'\n=== 地区分类 ===')
+        print(f'\n[5/5] 地区分类...')
         reader = maxminddb.open_database(GEOIP_DB)
         result, country_stats = classify_and_rename(alive, reader)
         reader.close()
         for cc in sorted(country_stats, key=lambda c: ('ZZZ' if c == 'XX' else c)):
             print(f'  {_country_flag(cc)} {cc}: {country_stats[cc]}')
     else:
-        print('\n[!] GeoIP 不可用，跳过地区分类')
+        print('\n[5/5] GeoIP 不可用，跳过地区分类')
         result = alive
 
     # 输出
@@ -311,6 +437,7 @@ async def async_main():
     stats = {
         'updated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'total_fetched': len(all_nodes),
+        'after_prefilter': len(valid),
         'unique_nodes': len(unique),
         'alive_nodes': len(alive),
         'country_stats': country_stats,
@@ -319,7 +446,8 @@ async def async_main():
     with open('output/stats.json', 'w', encoding='utf-8') as f:
         json.dump(stats, f, indent=2, ensure_ascii=False)
 
-    print(f'\n输出 -> output/ ({len(result)} 个存活节点)')
+    elapsed = time.time() - t_start
+    print(f'\n=== 完成: {len(result)} 个存活节点 | 耗时 {elapsed:.1f}s ===')
 
 
 def main():
