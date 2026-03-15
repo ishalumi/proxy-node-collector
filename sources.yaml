@@ -7,6 +7,21 @@ sources:
   - name: "AutoMergePublicNodes"
     url: "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"
 
+  - name: "barry-far/V2ray-Config"
+    url: "https://raw.githubusercontent.com/barry-far/V2ray-Config/main/All_Configs_Sub.txt"
+
+  - name: "MatinGhanbari/v2ray-configs"
+    url: "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt"
+
+  - name: "mahdibland/V2RayAggregator"
+    url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity"
+
+  - name: "Epodonios/v2ray-configs"
+    url: "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt"
+
+  - name: "xyfqzy/free-nodes"
+    url: "https://raw.githubusercontent.com/xyfqzy/free-nodes/main/ppt.txt"
+
   # --- Barabama/FreeNodes 各子源 ---
   - name: "Barabama/nodefree"
     url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/nodefree.txt"
@@ -23,6 +38,19 @@ sources:
   - name: "Barabama/yudou66"
     url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/yudou66.txt"
 
+  # --- 定时更新源 ---
+  - name: "peasoft/NoMoreWalls"
+    url: "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt"
+
+  - name: "mfuu/v2ray"
+    url: "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray"
+
+  - name: "ermaozi/get_subscribe"
+    url: "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt"
+
+  - name: "yzcjd/jiedian"
+    url: "https://raw.githubusercontent.com/yzcjd/jiedian/main/%40yzcjd"
+
   # --- proxypool 主聚合源 ---
   - name: "proxypool/clash-meta"
     url: "https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta.yaml"
@@ -34,6 +62,11 @@ sources:
   - name: "clashfree/daily"
     url_template: "https://raw.githubusercontent.com/free-nodes/clashfree/main/clash{date}.yml"
     date_format: "%Y%m%d"
+
+  # --- 非 GitHub 网站源 ---
+  - name: "mianfeiclash/daily"
+    url_template: "https://node.mianfeiclash.com/uploads/{date}.txt"
+    date_format: "%Y/%m/0-%Y%m%d"
 
   # --- 备用固定订阅源 ---
   - name: "Pawdroid/sub"
