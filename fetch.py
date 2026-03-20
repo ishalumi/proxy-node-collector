@@ -545,6 +545,7 @@ def classify_and_rename(nodes, reader):
                 cdn_trimmed += original - MAX_CDN_NODES
 
     renamed = []
+    us_nodes = []
     country_stats = {}
     for cc in sorted(buckets, key=lambda c: ('ZZZ' if c == 'XX' else c)):
         flag = _country_flag(cc)
@@ -552,12 +553,15 @@ def classify_and_rename(nodes, reader):
         country_stats[cc] = len(buckets[cc])
         for i, node in enumerate(buckets[cc], 1):
             proto = get_protocol_name(node)
-            renamed.append(_rename_node(node, f'{flag} {cn_name} | {proto} | {i:02d}'))
+            new_node = _rename_node(node, f'{flag} {cn_name} | {proto} | {i:02d}')
+            renamed.append(new_node)
+            if cc == 'US':
+                us_nodes.append(new_node)
 
     if cdn_trimmed:
         print(f'  CDN 限流: 裁剪 {cdn_trimmed} 个冗余 CDN 节点 (每提供商上限 {MAX_CDN_NODES})')
 
-    return renamed, country_stats
+    return renamed, country_stats, us_nodes
 
 
 # ===== 主流程 =====
@@ -589,10 +593,11 @@ async def async_main():
 
     # 5. 地区分类
     country_stats = {}
+    us_nodes = []
     if maxminddb and os.path.exists(GEOIP_DB):
         print(f'\n[5/5] 地区分类...')
         reader = maxminddb.open_database(GEOIP_DB)
-        result, country_stats = classify_and_rename(alive, reader)
+        result, country_stats, us_nodes = classify_and_rename(alive, reader)
         reader.close()
         for cc in sorted(country_stats, key=lambda c: ('ZZZ' if c == 'XX' else c)):
             print(f'  {_country_flag(cc)} {_country_display(cc)}: {country_stats[cc]}')
@@ -609,6 +614,10 @@ async def async_main():
     b64 = base64.b64encode('\n'.join(result).encode()).decode()
     with open('output/nodes_base64.txt', 'w', encoding='utf-8') as f:
         f.write(b64)
+
+    with open('output/easy_proxy_nodes.txt', 'w', encoding='utf-8') as f:
+        f.write('\n'.join(us_nodes) + '\n')
+    print(f'  easy_proxy (US): {len(us_nodes)} 个节点 -> output/easy_proxy_nodes.txt')
 
     stats = {
         'updated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
