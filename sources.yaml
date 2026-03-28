@@ -68,6 +68,10 @@ sources:
     url_template: "https://node.mianfeiclash.com/uploads/{date}.txt"
     date_format: "%Y/%m/0-%Y%m%d"
 
+  # --- clashnodev2ray clash 格式 (洗为标准 URI) ---
+  - name: "clashnodev2ray/clash"
+    url: "https://clashnodev2ray.github.io/clash.yaml"
+
   # --- 备用固定订阅源 ---
   - name: "Pawdroid/sub"
     url: "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"
