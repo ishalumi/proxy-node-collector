@@ -1,59 +1,62 @@
 {
-  "updated_at": "2026-04-20 02:10:52",
-  "total_fetched": 11050,
-  "after_prefilter": 10822,
-  "unique_nodes": 5820,
-  "alive_nodes": 2098,
+  "updated_at": "2026-04-20 08:00:04",
+  "total_fetched": 11308,
+  "after_prefilter": 11081,
+  "unique_nodes": 6010,
+  "alive_nodes": 2421,
   "country_stats": {
-    "AE": 4,
+    "AE": 5,
+    "AL": 1,
     "AM": 1,
     "AR": 2,
-    "AT": 7,
-    "AU": 2,
+    "AT": 10,
+    "AU": 1,
     "BE": 1,
-    "BG": 4,
+    "BG": 5,
     "BH": 1,
     "BO": 1,
     "BR": 3,
-    "CA": 18,
-    "CH": 2,
+    "CA": 16,
+    "CH": 8,
     "CLOUDFLARE": 30,
     "CLOUDFRONT": 1,
     "CN": 1,
     "CO": 1,
     "CR": 1,
-    "CY": 5,
-    "CZ": 5,
-    "DE": 97,
+    "CY": 6,
+    "CZ": 11,
+    "DE": 276,
     "DK": 1,
     "EC": 1,
-    "EE": 8,
+    "EE": 10,
     "ES": 6,
-    "FASTLY": 12,
-    "FI": 4,
-    "FR": 131,
-    "GB": 67,
-    "HK": 86,
-    "HR": 2,
+    "FASTLY": 20,
+    "FI": 5,
+    "FR": 135,
+    "GB": 70,
+    "HK": 78,
+    "HR": 1,
     "ID": 2,
     "IE": 1,
     "IN": 10,
-    "IR": 19,
+    "IQ": 2,
+    "IR": 51,
     "IT": 2,
-    "JP": 27,
+    "JP": 22,
     "KH": 1,
-    "KR": 23,
-    "KZ": 6,
+    "KR": 28,
+    "KZ": 5,
     "LT": 3,
     "LV": 14,
     "MA": 3,
-    "MD": 8,
+    "MD": 9,
     "MK": 1,
+    "MN": 1,
     "MT": 2,
     "MX": 2,
     "MY": 12,
     "NG": 1,
-    "NL": 90,
+    "NL": 95,
     "NO": 1,
     "PA": 2,
     "PE": 3,
@@ -64,15 +67,16 @@
     "PW": 1,
     "PY": 1,
     "RO": 5,
-    "RU": 13,
+    "RU": 18,
+    "SA": 2,
     "SC": 7,
-    "SE": 6,
-    "SG": 23,
-    "SI": 1,
+    "SE": 12,
+    "SG": 18,
+    "SI": 2,
     "TR": 5,
-    "TW": 21,
-    "US": 197,
-    "VN": 264,
+    "TW": 24,
+    "US": 220,
+    "VN": 253,
     "ZA": 4
   },
   "sources": [
@@ -87,8 +91,13 @@
       "status": "ok"
     },
     {
-      "name": "Barabama/nodefree",
-      "count": 26,
+      "name": "MatinGhanbari/v2ray-configs",
+      "count": 3996,
+      "status": "ok"
+    },
+    {
+      "name": "barry-far/V2ray-Config",
+      "count": 2410,
       "status": "ok"
     },
     {
@@ -97,7 +106,7 @@
       "status": "ok"
     },
     {
-      "name": "Barabama/wenode",
+      "name": "Barabama/nodefree",
       "count": 26,
       "status": "ok"
     },
@@ -107,33 +116,13 @@
       "status": "ok"
     },
     {
-      "name": "Barabama/yudou66",
-      "count": 203,
+      "name": "Barabama/wenode",
+      "count": 26,
       "status": "ok"
     },
     {
       "name": "ermaozi/get_subscribe",
       "count": 26,
-      "status": "ok"
-    },
-    {
-      "name": "mfuu/v2ray",
-      "count": 66,
-      "status": "ok"
-    },
-    {
-      "name": "Epodonios/v2ray-configs",
-      "count": 3429,
-      "status": "ok"
-    },
-    {
-      "name": "proxypool/clash-meta",
-      "count": 27,
-      "status": "ok"
-    },
-    {
-      "name": "barry-far/V2ray-Config",
-      "count": 2376,
       "status": "ok"
     },
     {
@@ -147,8 +136,28 @@
       "status": "ok"
     },
     {
+      "name": "Barabama/yudou66",
+      "count": 296,
+      "status": "ok"
+    },
+    {
+      "name": "proxypool/clash-meta",
+      "count": 27,
+      "status": "ok"
+    },
+    {
       "name": "yzcjd/jiedian",
       "count": 101,
+      "status": "ok"
+    },
+    {
+      "name": "mfuu/v2ray",
+      "count": 191,
+      "status": "ok"
+    },
+    {
+      "name": "Epodonios/v2ray-configs",
+      "count": 3434,
       "status": "ok"
     },
     {
@@ -157,13 +166,13 @@
       "status": "ok"
     },
     {
-      "name": "mianfeiclash/daily",
-      "count": 186,
+      "name": "clashnodev2ray/clash",
+      "count": 28,
       "status": "ok"
     },
     {
-      "name": "clashnodev2ray/clash",
-      "count": 27,
+      "name": "mianfeiclash/daily",
+      "count": 186,
       "status": "ok"
     },
     {
@@ -174,11 +183,6 @@
     {
       "name": "proxypool/clash-meta-2",
       "count": 70,
-      "status": "ok"
-    },
-    {
-      "name": "MatinGhanbari/v2ray-configs",
-      "count": 3996,
       "status": "ok"
     }
   ]
