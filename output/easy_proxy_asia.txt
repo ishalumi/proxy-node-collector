@@ -10,7 +10,6 @@ vless://1a5b24bc-6180-4fa7-922d-ba7ee8a7a2b7@103.18.49.100:443?path=/id-pusat&se
 vless://ebb0632e-3e8f-433d-8f15-9c2c88acac9e@82.115.26.170:8084?encryption=none&host=&path=/&security=none&type=ws#%F0%9F%87%A6%F0%9F%87%BA%20%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9A%20%7C%20vless%20%7C%2002
 trojan://255c924c-1314-4084-9a9e-1d1a82a5cf49@us2.trojanvh.xyz:80?security=tls#%F0%9F%87%A6%F0%9F%87%BA%20%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9A%20%7C%20trojan%20%7C%2003
 trojan://b640d791-ff83-4300-b509-c2a02f97f167@uk1.trojanvh.xyz:80?security=tls#%F0%9F%87%A6%F0%9F%87%BA%20%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9A%20%7C%20trojan%20%7C%2004
-vless://aca32055-db88-4634-b623-6429ddbb6c93@54.252.231.115:55292?sni=yahoo.com&flow=xtls-rprx-vision-udp443&fp=chrome&security=tls#%F0%9F%87%A6%F0%9F%87%BA%20%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9A%20%7C%20vless%20%7C%2005
 vless://3e62a6f1-f8cb-40eb-9c33-fc4ed39a080e@54.253.37.164:23951?security=reality&sni=www.tesla.com&type=tcp&fp=firefox&pbk=FGnWfD70nPQhiMZUQETB_mKaR-J_2DonpOpy9eqQ_F0&sid=8c4907b7884b31&flow=xtls-rprx-vision#%F0%9F%87%A6%F0%9F%87%BA%20%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9A%20%7C%20vless%20%7C%2006
 ss://YWVzLTI1Ni1nY206U0w0dnpjdmhCSGhUV2l2RA@154.26.155.172:80#%F0%9F%87%A6%F0%9F%87%BA%20%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9A%20%7C%20ss%20%7C%2007
 vless://e6dbaf95-1c9e-48c5-a0b4-0bd18aecc221@155.254.102.74:443?encryption=none&type=tcp&security=reality&headerType=none&sni=www.microsoft.com&fp=chrome&allowInsecure=1&pbk=Vc8ycAgKqfRvtXjvGP0ry_U91o5wgrQlqOhHq72HYRs&sid=1bc2c1ef1c&flow=xtls-rprx-vision#%F0%9F%87%A6%F0%9F%87%BA%20%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9A%20%7C%20vless%20%7C%2008
@@ -75,9 +74,7 @@ vmess://eyJhZGQiOiAiMTcyLjEwNC44MC42NiIsICJhaWQiOiAiMCIsICJhbHBuIjogIiIsICJmcCI6
 ss://YWVzLTI1Ni1nY206WEtGS2wyclVMaklwNzQ=@103.106.228.175:8009#%F0%9F%87%AF%F0%9F%87%B5%20%E6%97%A5%E6%9C%AC%20%7C%20ss%20%7C%2002
 vmess://eyJ2IjogIjIiLCAicHMiOiAi8J+Hr/Cfh7Ug5pel5pysIHwgdm1lc3MgfCAwMyIsICJhZGQiOiAiMTUzLjEyMS43My4xNzUiLCAicG9ydCI6ICI0OTgwMyIsICJpZCI6ICJjZDNkYWNiYy0yYjdiLTQ3MTgtODNhZC1hYjg3MGY4N2UxMmUiLCAiYWlkIjogIjAiLCAic2N5IjogImF1dG8iLCAibmV0IjogInRjcCIsICJ0eXBlIjogIm5vbmUiLCAidGxzIjogIiJ9
 vmess://eyJhZGQiOiAiMTMxLjE4Ni42My44OSIsICJhaWQiOiAiMCIsICJhbHBuIjogIiIsICJmcCI6ICIiLCAiaG9zdCI6ICJoay5uYmVlLnBwLnVhIiwgImlkIjogIjRiZjA3NWY1LTRkNWUtNGQzOS1mNWFiLWIzMmE4NjI1MGYwZSIsICJuZXQiOiAid3MiLCAicGF0aCI6ICIvYWEiLCAicG9ydCI6ICIxMTY1NSIsICJwcyI6ICLwn4ev8J+HtSDml6XmnKwgfCB2bWVzcyB8IDA0IiwgInNjeSI6ICJhdXRvIiwgInNuaSI6ICJoay5uYmVlLnBwLnVhIiwgInRscyI6ICJ0bHMiLCAidHlwZSI6ICIiLCAidiI6ICIyIn0=
-vless://00000000-0000-4000-8000-000000000000@142.248.151.249:17512?allowInsecure=0&sni=qi4rysu2u-e8j2zzhk.bsld.de5.net&type=ws&host=qi4rysu2u-e8j2zzhk.bsld.de5.net&path=/@Marisa_kristifp=chrome&security=tls#%F0%9F%87%AF%F0%9F%87%B5%20%E6%97%A5%E6%9C%AC%20%7C%20vless%20%7C%2005
 ss://YWVzLTI1Ni1nY206R1RaSTVBYmpOQWVXUUcwb1ZOcHR2V0pvZ0hOS2lpS0E=@47.79.144.115:40003#%F0%9F%87%AF%F0%9F%87%B5%20%E6%97%A5%E6%9C%AC%20%7C%20ss%20%7C%2006
-vless://1c65bee4-bc54-364c-8988-6a5912fda891@108.160.134.123:443?security=tls&sni=u723829us1347.csgfw.top&type=h2&fp=random#%F0%9F%87%AF%F0%9F%87%B5%20%E6%97%A5%E6%9C%AC%20%7C%20vless%20%7C%2007
 vless://dfc0cb9d-f005-41b0-848c-7703bd39d0de@31.76.91.17:443?security=reality&encryption=none&pbk=QVkd5uoSbUA7rHVLtIoJB4iRp4l0zuw0H9qzQBh3lHs&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&sni=jp.s3-cloud.org&sid=7a3f9e2b1c8d4f6a#%F0%9F%87%AF%F0%9F%87%B5%20%E6%97%A5%E6%9C%AC%20%7C%20vless%20%7C%2008
 vless://394f6981-a782-4779-9a85-e6cf22935d93@178.249.213.177:8443?security=tls&sni=jp1.fromblancwithlove.com&type=tcp#%F0%9F%87%AF%F0%9F%87%B5%20%E6%97%A5%E6%9C%AC%20%7C%20vless%20%7C%2009
 vless://dfc0cb9d-f005-41b0-848c-7703bd39d0de@31.76.91.30:443?security=reality&encryption=none&pbk=QVkd5uoSbUA7rHVLtIoJB4iRp4l0zuw0H9qzQBh3lHs&headerType=none&fp=chrome&type=tcp&flow=xtls-rprx-vision&sni=jp.s3-cloud.org&sid=7a3f9e2b1c8d4f6a#%F0%9F%87%AF%F0%9F%87%B5%20%E6%97%A5%E6%9C%AC%20%7C%20vless%20%7C%2010
@@ -114,7 +111,6 @@ ss://YWVzLTI1Ni1nY206VEV6amZBWXEySWp0dW9T@141.164.45.187:6679#%F0%9F%87%B0%F0%9F
 ss://YWVzLTI1Ni1nY206UmV4bkJnVTdFVjVBRHhH@141.164.45.187:7001#%F0%9F%87%B0%F0%9F%87%B7%20%E9%9F%A9%E5%9B%BD%20%7C%20ss%20%7C%2012
 ss://YWVzLTI1Ni1nY206cEtFVzhKUEJ5VFZUTHRN@158.247.205.87:443#%F0%9F%87%B0%F0%9F%87%B7%20%E9%9F%A9%E5%9B%BD%20%7C%20ss%20%7C%2013
 hy2://1c65bee4-bc54-364c-8988-6a5912fda891@158.247.196.19:443?sni=u723829us1311.csgfw.top#%F0%9F%87%B0%F0%9F%87%B7%20%E9%9F%A9%E5%9B%BD%20%7C%20hy2%20%7C%2014
-vless://1c65bee4-bc54-364c-8988-6a5912fda891@158.247.196.19:443?security=tls&sni=u723829us1278.csgfw.top&type=h2&fp=random#%F0%9F%87%B0%F0%9F%87%B7%20%E9%9F%A9%E5%9B%BD%20%7C%20vless%20%7C%2015
 trojan://WF42809561@outgoing-cockatoo.rooster465.autos:443?security=tls#%F0%9F%87%B0%F0%9F%87%B7%20%E9%9F%A9%E5%9B%BD%20%7C%20trojan%20%7C%2016
 trojan://ZY07256934@glowing-deer.rooster465.autos:443?security=tls#%F0%9F%87%B0%F0%9F%87%B7%20%E9%9F%A9%E5%9B%BD%20%7C%20trojan%20%7C%2017
 trojan://IL37892054@select-marmoset.rooster465.autos:443?security=tls#%F0%9F%87%B0%F0%9F%87%B7%20%E9%9F%A9%E5%9B%BD%20%7C%20trojan%20%7C%2018
@@ -184,9 +180,7 @@ trojan://96983eb4-c8f1-316e-ab00-500014ed3d8b@official.taipeicitygovernment.cher
 trojan://96983eb4-c8f1-316e-ab00-500014ed3d8b@official.taipeicitygovernment.co.ua:8443?security=tls#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20trojan%20%7C%2016
 trojan://96983eb4-c8f1-316e-ab00-500014ed3d8b@official.taipeicitygovernment.ivano-frankivsk.ua:8443?security=tls#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20trojan%20%7C%2017
 trojan://96983eb4-c8f1-316e-ab00-500014ed3d8b@official.taipeicitygovernment.kiev.ua:8443?security=tls#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20trojan%20%7C%2018
-vless://bce38beb-a6d0-41d7-9c0a-26eed9a6634d@43.212.235.169:443?allowInsecure=0&sni=dlcdnets.asus.com&flow=xtls-rprx-vision-udp443&fp=chrome&security=tls#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20vless%20%7C%2019
 trojan://736cd94d-7b94-3e44-8106-3419f64eaf09@a12.taipeicitygovernment.org.ua:3462?security=tls#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20trojan%20%7C%2020
-vless://bce38beb-a6d0-41d7-9c0a-26eed9a6634d@tw3.miyazono-kaori.com:443?allowInsecure=0&sni=dlcdnets.asus.com&flow=xtls-rprx-vision-udp443&fp=chrome&security=tls#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20vless%20%7C%2021
 trojan://e5c22f63-e473-496a-beff-fdc5655008c1@tvhinet.lajichang.xyz:2096?security=tls&sni=bing.com&allowInsecure=1&type=tcp#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20trojan%20%7C%2022
 ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTo3ZTczMWVjMy1mOGUxLTQzZjYtOTJjZi0zOTc4ZDE0NzA1YzQ=@r3mrcg001286ek2.cybervena.com:50099#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20ss%20%7C%2023
 ss://Y2hhY2hhMjAtaWV0Zi1wb2x5MTMwNTo3ZTczMWVjMy1mOGUxLTQzZjYtOTJjZi0zOTc4ZDE0NzA1YzQ=@r3mrcg00129437x.cybervena.com:50099#%F0%9F%87%B9%F0%9F%87%BC%20%E5%8F%B0%E6%B9%BE%20%7C%20ss%20%7C%2024
