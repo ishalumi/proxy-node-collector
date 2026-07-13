@@ -9,10 +9,11 @@ import os
 import socket
 import ssl
 import time
+import re
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
-from urllib.parse import urlparse, quote
+from urllib.parse import urlparse, quote, unquote
 from urllib.request import urlopen, Request
 
 import yaml
@@ -22,18 +23,34 @@ try:
 except ImportError:
     maxminddb = None
 
+def _env_int(name, default):
+    try:
+        return int(os.environ.get(name, default))
+    except (TypeError, ValueError):
+        return default
+
+def _env_float(name, default):
+    try:
+        return float(os.environ.get(name, default))
+    except (TypeError, ValueError):
+        return default
+
 PROTOCOLS = (
     'vmess://', 'vless://', 'trojan://', 'ss://',
     'ssr://', 'hy2://', 'hysteria2://', 'hysteria://',
     'socks5://', 'socks://',
 )
 
-GEOIP_DB = 'GeoLite2-Country.mmdb'
-TCP_CONCURRENCY = 200
-TCP_TIMEOUT = 3
-FETCH_TIMEOUT = 15
-FETCH_WORKERS = 8
-MAX_CDN_NODES = 30  # 每个 CDN 提供商最多保留节点数
+GEOIP_DB = os.environ.get('GEOIP_DB', 'GeoLite2-Country.mmdb')
+TCP_CONCURRENCY = _env_int('TCP_CONCURRENCY', 600)
+TCP_TIMEOUT = _env_float('TCP_TIMEOUT', 3.5)
+FETCH_TIMEOUT = _env_float('FETCH_TIMEOUT', 20)
+FETCH_WORKERS = _env_int('FETCH_WORKERS', 16)
+MAX_CDN_NODES = 30
+# 默认 2.5s：GitHub Actions 在海外，过宽会把“端口开着但代理废了”的节点放进来
+LATENCY_MAX_MS = _env_int('LATENCY_MAX_MS', 2500)
+# 最终输出上限，避免 easy_proxies 被几千垃圾节点淹没
+MAX_OUTPUT_NODES = _env_int('MAX_OUTPUT_NODES', 2500)
 
 # ChatGPT/OpenAI 封锁国家（基于实测 API 验证 + 已知制裁清单）
 CHATGPT_BLOCKED = {'CN', 'RU', 'BY', 'IR', 'KP', 'CU', 'SY'}
@@ -54,6 +71,16 @@ EUROPE_CHATGPT = {
     'MD', 'UA', 'AL',
 }
 
+DEFAULT_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+CLASH_UA = 'ClashforWindows/0.20.39'
+BLUE2SEA_README = 'https://raw.githubusercontent.com/bq2015/FreeProxies/main/README.md'
+BLUE2SEA_TOKEN_RE = re.compile(
+    r'https?://blue2sea\.com/clash/([0-9a-fA-F]{16,})', re.I
+)
+PROVIDER_URL_RE = re.compile(
+    r'''url:\s*["']?(https?://[^\s"'#]+)["']?''', re.I
+)
+
 
 # ===== 数据源抓取 =====
 
@@ -62,19 +89,25 @@ def load_sources(path='sources.yaml'):
         return yaml.safe_load(f)
 
 
-def fetch_url(url, timeout=FETCH_TIMEOUT):
-    req = Request(url, headers={
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    })
+def fetch_url(url, timeout=FETCH_TIMEOUT, headers=None):
+    hdrs = {'User-Agent': DEFAULT_UA, 'Accept': '*/*'}
+    if headers:
+        hdrs.update(headers)
+    req = Request(url, headers=hdrs)
     try:
         with urlopen(req, timeout=timeout) as resp:
             return resp.read().decode('utf-8', errors='ignore')
     except Exception as e:
-        print(f'  [!] 请求失败: {e}')
+        print(f'  [!] 请求失败 {url[:80]}: {e}')
         return None
 
 
 def resolve_url(source):
+    if source.get('dynamic') == 'blue2sea':
+        token = _resolve_blue2sea_token()
+        if token:
+            return f'https://blue2sea.com/clash/{token}'
+        # fallback 到配置里的静态 url
     if 'url' in source:
         return source['url']
     if 'url_template' in source:
@@ -84,9 +117,142 @@ def resolve_url(source):
     return None
 
 
+_blue2sea_token_cache = None
+
+
+def _resolve_blue2sea_token():
+    """从 bq2015/FreeProxies README 解析当日公共 token（每日轮换）"""
+    global _blue2sea_token_cache
+    if _blue2sea_token_cache:
+        return _blue2sea_token_cache
+    content = fetch_url(BLUE2SEA_README, headers={'User-Agent': DEFAULT_UA})
+    if not content:
+        return None
+    m = BLUE2SEA_TOKEN_RE.search(content)
+    if not m:
+        print('  [!] blue2sea token 未在 FreeProxies README 中找到')
+        return None
+    _blue2sea_token_cache = m.group(1)
+    print(f'  [i] blue2sea token: {_blue2sea_token_cache[:8]}...')
+    return _blue2sea_token_cache
+
+
+def _source_headers(src):
+    headers = {}
+    raw = src.get('headers') or {}
+    if isinstance(raw, dict):
+        headers.update({str(k): str(v) for k, v in raw.items()})
+    if src.get('dynamic') == 'blue2sea' or src.get('resolve_providers'):
+        headers.setdefault('User-Agent', CLASH_UA)
+    return headers
+
+
+def _extract_provider_urls(content):
+    """从 Clash 配置提取 proxy-providers 的真实节点 URL"""
+    urls = []
+    try:
+        data = yaml.safe_load(content)
+    except Exception:
+        data = None
+    if isinstance(data, dict):
+        providers = data.get('proxy-providers') or data.get('proxy-provider') or {}
+        if isinstance(providers, dict):
+            for _, meta in providers.items():
+                if isinstance(meta, dict) and meta.get('url'):
+                    urls.append(str(meta['url']).strip())
+        # 已内嵌 proxies 则无需 providers
+        if data.get('proxies'):
+            return urls
+    if not urls:
+        for m in PROVIDER_URL_RE.finditer(content or ''):
+            u = m.group(1).strip().rstrip('",\'')
+            if 'blue2sea.com/clash/proxies/' in u or 'proxy-providers' in content:
+                urls.append(u)
+            elif '/proxies/' in u and 'clash' in u:
+                urls.append(u)
+    # 去重保序；blue2sea 优先 ALL-NET，跳过 aiAgent 子集以免双倍 429
+    seen = set()
+    out = []
+    for u in urls:
+        low = u.lower()
+        if 'blue2sea.com' in low and 'aiagent' in low:
+            continue
+        if u not in seen:
+            seen.add(u)
+            out.append(u)
+    return out
+
+
+def _fetch_content_with_providers(url, headers, resolve_providers=False):
+    """抓取内容；若是 Clash provider 壳，则展开嵌套节点列表"""
+    content = fetch_url(url, headers=headers)
+    if not content:
+        return None, []
+
+    nodes = parse_nodes(content)
+    if nodes:
+        return content, nodes
+
+    if not resolve_providers:
+        return content, []
+
+    provider_urls = _extract_provider_urls(content)
+    if not provider_urls:
+        return content, []
+
+    all_nodes = []
+    for pu in provider_urls:
+        # provider 常强制 Clash UA
+        ph = dict(headers or {})
+        ph.setdefault('User-Agent', CLASH_UA)
+        # blue2sea 的 provider 有时只认 query ua=
+        if 'blue2sea.com' in pu and 'ua=' not in pu:
+            sep = '&' if '?' in pu else '?'
+            pu = f'{pu}{sep}ua=clashforwindows/0.20.39'
+        # 优先 https
+        candidates = [pu]
+        if pu.startswith('http://'):
+            candidates.insert(0, 'https://' + pu[len('http://'):])
+        got = None
+        for cand in candidates:
+            for attempt in range(4):
+                got = fetch_url(cand, headers=ph)
+                if not got:
+                    time.sleep(1.5 * (attempt + 1))
+                    continue
+                # blue2sea 限流 JSON / 空 proxies
+                if '过于频繁' in got or '"status": 429' in got or '"status":429' in got:
+                    wait = 3 * (attempt + 1)
+                    print(f'  [i] provider 429，等待 {wait}s 重试: {cand[:70]}')
+                    time.sleep(wait)
+                    got = None
+                    continue
+                if 'proxies: []' in got.strip() or got.strip() == 'proxies: []':
+                    # 空列表也可能是限流伪装，退避再试
+                    time.sleep(2 * (attempt + 1))
+                    got = None
+                    continue
+                if len(got) > 32:
+                    break
+                got = None
+            if got:
+                break
+        if not got:
+            print(f'  [!] provider 拉取失败: {pu[:90]}')
+            continue
+        sub_nodes = parse_nodes(got)
+        print(f'  [i] provider {pu[:70]}... -> {len(sub_nodes)} 节点')
+        all_nodes.extend(sub_nodes)
+        # 多个 provider 之间也稍作间隔，降低 429
+        time.sleep(1.2)
+    return content, all_nodes
+
+
 def fetch_all_sources(config):
-    """多线程并发抓取所有源"""
-    sources = config.get('sources', [])
+    """多线程并发抓取所有源；高 priority 源节点排在前面，便于去重保留"""
+    sources = list(config.get('sources', []))
+    # 高 priority 先抓、节点先入队
+    sources.sort(key=lambda s: -int(s.get('priority', 50)))
     all_nodes = []
     source_stats = []
 
@@ -94,25 +260,68 @@ def fetch_all_sources(config):
         name = src['name']
         url = resolve_url(src)
         if not url:
-            return name, [], 'invalid'
-        try:
-            content = fetch_url(url)
-            if not content:
-                return name, [], 'failed'
-            nodes = parse_nodes(content)
-            return name, nodes, 'ok'
-        except Exception as e:
-            return name, [], 'failed'
+            return name, [], 'invalid', 0, 0, int(src.get('priority', 50))
+        headers = _source_headers(src)
+        resolve_providers = bool(src.get('resolve_providers') or src.get('dynamic') == 'blue2sea')
+        for attempt in range(2):
+            try:
+                _, nodes = _fetch_content_with_providers(
+                    url, headers, resolve_providers=resolve_providers
+                )
+                # blue2sea 主页本身没有 proxies，仅 provider
+                if not nodes and not resolve_providers:
+                    content = fetch_url(url, headers=headers)
+                    nodes = parse_nodes(content or '')
+                raw_count = len(nodes)
+                if raw_count == 0:
+                    if attempt == 0:
+                        time.sleep(1.5)
+                        continue
+                    return name, [], 'failed', 0, 0, int(src.get('priority', 50))
+                limit = src.get('limit')
+                if limit and len(nodes) > int(limit):
+                    step = (len(nodes) - 1) / (int(limit) - 1) if int(limit) > 1 else 1
+                    nodes = [nodes[round(i * step)] for i in range(int(limit))]
+                trimmed = raw_count - len(nodes)
+                return name, nodes, 'ok', raw_count, trimmed, int(src.get('priority', 50))
+            except Exception as e:
+                if attempt == 0:
+                    time.sleep(1)
+                    continue
+                print(f'  [!] {name} 异常: {e}')
+                return name, [], 'failed', 0, 0, int(src.get('priority', 50))
+        return name, [], 'failed', 0, 0, int(src.get('priority', 50))
+
+    # 结果按 priority 回填，保证高优先级节点先进入去重
+    results = []
+
+    def _record(name, nodes, status, raw_count, trimmed, priority):
+        count = len(nodes)
+        icon = '✓' if status == 'ok' else '✗'
+        if trimmed:
+            print(f'  [{icon}] {name}: {raw_count} -> {count} 个节点 (限流 {trimmed})')
+        else:
+            print(f'  [{icon}] {name}: {count} 个节点')
+        results.append((priority, name, nodes, status, raw_count, trimmed))
+        source_stats.append({
+            'name': name, 'count': count, 'raw_count': raw_count,
+            'trimmed': trimmed, 'status': status, 'priority': priority,
+        })
+
+    # 动态源（blue2sea 等）串行优先，避免与并发抓取抢限流
+    serial_sources = [s for s in sources if s.get('dynamic')]
+    parallel_sources = [s for s in sources if not s.get('dynamic')]
+    for src in serial_sources:
+        _record(*_fetch_one(src))
 
     with ThreadPoolExecutor(max_workers=FETCH_WORKERS) as pool:
-        futures = {pool.submit(_fetch_one, src): src for src in sources}
+        futures = {pool.submit(_fetch_one, src): src for src in parallel_sources}
         for future in as_completed(futures):
-            name, nodes, status = future.result()
-            count = len(nodes)
-            icon = '✓' if status == 'ok' else '✗'
-            print(f'  [{icon}] {name}: {count} 个节点')
-            all_nodes.extend(nodes)
-            source_stats.append({'name': name, 'count': count, 'status': status})
+            _record(*future.result())
+
+    results.sort(key=lambda x: -x[0])
+    for _, name, nodes, status, raw_count, trimmed in results:
+        all_nodes.extend(nodes)
 
     return all_nodes, source_stats
 
@@ -135,6 +344,8 @@ def is_node(line):
 
 
 def parse_nodes(content):
+    if not content:
+        return []
     nodes = []
     for line in content.splitlines():
         line = line.strip()
@@ -161,9 +372,13 @@ def _parse_clash_yaml(content):
         data = yaml.safe_load(content)
     except Exception:
         return []
-    if not isinstance(data, dict):
+    if isinstance(data, list):
+        # 某些 provider 直接返回 proxies 列表
+        proxies = data
+    elif isinstance(data, dict):
+        proxies = data.get('proxies', [])
+    else:
         return []
-    proxies = data.get('proxies', [])
     if not proxies:
         return []
 
@@ -194,10 +409,10 @@ def _clash_proxy_to_uri(p):
             'scy': p.get('cipher', 'auto'), 'net': p.get('network', 'tcp'),
             'type': 'none', 'tls': 'tls' if p.get('tls') else '',
         }
-        ws = p.get('ws-opts', {})
+        ws = p.get('ws-opts', {}) or {}
         if ws:
             info['path'] = ws.get('path', '/')
-            info['host'] = ws.get('headers', {}).get('Host', '')
+            info['host'] = (ws.get('headers') or {}).get('Host', '')
         if p.get('servername'):
             info['sni'] = p['servername']
         return 'vmess://' + base64.b64encode(
@@ -220,10 +435,9 @@ def _clash_proxy_to_uri(p):
         userinfo = base64.b64encode(f'{method}:{pwd}'.encode()).decode()
         return f"ss://{userinfo}@{server}:{port}#{name}"
 
-    if ptype in ('ssr', 'hysteria2', 'hy2'):
-        # 简单支持
+    if ptype in ('ssr', 'hysteria2', 'hy2', 'hysteria'):
         if ptype == 'ssr':
-            return None  # SSR 格式复杂，跳过
+            return None
         pwd = p.get('password', p.get('auth', ''))
         params = {}
         if p.get('sni'):
@@ -248,17 +462,17 @@ def _build_clash_params(p):
     net = p.get('network', '')
     if net:
         params['type'] = net
-    ws = p.get('ws-opts', {})
+    ws = p.get('ws-opts', {}) or {}
     if ws:
-        params['host'] = ws.get('headers', {}).get('Host', '')
+        params['host'] = (ws.get('headers') or {}).get('Host', '')
         params['path'] = ws.get('path', '/')
-    grpc = p.get('grpc-opts', {})
+    grpc = p.get('grpc-opts', {}) or {}
     if grpc:
         params['serviceName'] = grpc.get('grpc-service-name', '')
     fp = p.get('client-fingerprint', '')
     if fp:
         params['fp'] = fp
-    ro = p.get('reality-opts', {})
+    ro = p.get('reality-opts', {}) or {}
     if ro:
         params['security'] = 'reality'
         params['pbk'] = ro.get('public-key', '')
@@ -318,16 +532,90 @@ def _is_private_host(host):
     """检查是否为私有/保留 IP"""
     try:
         addr = ipaddress.ip_address(host)
-        return addr.is_private or addr.is_loopback or addr.is_reserved
+        return addr.is_private or addr.is_loopback or addr.is_reserved or addr.is_multicast
     except ValueError:
-        # 域名，检查常见无效域名
         return host in ('localhost', '127.0.0.1', '0.0.0.0', '::1', '')
+
+
+# sing-box 支持的 ss 加密方法白名单
+_GOOD_SS_METHODS = {
+    'aes-128-gcm', 'aes-256-gcm', 'chacha20-ietf-poly1305',
+    'xchacha20-ietf-poly1305', '2022-blake3-aes-128-gcm',
+    '2022-blake3-aes-256-gcm', '2022-blake3-chacha20-poly1305',
+    'aes-128-ctr', 'aes-192-ctr', 'aes-256-ctr',
+    'aes-128-cfb', 'aes-192-cfb', 'aes-256-cfb',
+    'chacha20', 'chacha20-ietf', 'xchacha20',
+    'none', 'plain',
+}
+
+_UUID_RE = re.compile(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+_UUID_NOHYPHEN_RE = re.compile(r'^[0-9a-fA-F]{32}$')
+
+# sing-box 支持的 vless flow 值
+_GOOD_VLESS_FLOWS = {'', 'xtls-rprx-vision'}
+
+
+def _validate_uri(node):
+    """检查节点 URI 是否能被 sing-box 正确解析，过滤掉会导致 panic 的节点"""
+    try:
+        if node.startswith('vmess://'):
+            raw = node[8:].split('#')[0]
+            info = json.loads(base64.b64decode(_pad_b64(raw)).decode())
+            if not info.get('id'):
+                return False
+            if not info.get('add'):
+                return False
+            port = info.get('port')
+            if not port or str(port) == '0':
+                return False
+        elif node.startswith('ss://'):
+            content = node[5:].split('#')[0]
+            if '@' in content:
+                userinfo = content.split('@')[0]
+                try:
+                    decoded = base64.b64decode(_pad_b64(userinfo)).decode()
+                    method = decoded.split(':')[0].lower().strip()
+                except Exception:
+                    return False
+            else:
+                try:
+                    decoded = base64.b64decode(_pad_b64(content)).decode()
+                    method = decoded.split(':')[0].lower().strip()
+                except Exception:
+                    return False
+            if method not in _GOOD_SS_METHODS:
+                return False
+        elif node.startswith('vless://'):
+            rest = node[8:]
+            if '@' not in rest:
+                return False
+            uuid_part = rest.split('@')[0]
+            if not (_UUID_RE.match(uuid_part) or _UUID_NOHYPHEN_RE.match(uuid_part)):
+                return False
+            qs = ''
+            if '?' in node:
+                qs = node.split('?', 1)[1].split('#')[0]
+            params = {}
+            for param in qs.split('&'):
+                if '=' in param:
+                    k, v = param.split('=', 1)
+                    params[k.lower()] = v.lower()
+            flow = params.get('flow', '')
+            if flow and flow not in _GOOD_VLESS_FLOWS:
+                return False
+            encryption = params.get('encryption', 'none')
+            if encryption not in ('none', ''):
+                return False
+        return True
+    except Exception:
+        return False
 
 
 def prefilter(nodes):
     """预过滤无效节点"""
     valid = []
     skipped = 0
+    bad_uri = 0
     for node in nodes:
         host, port = parse_host_port(node)
         if not host or not port or port <= 0 or port > 65535:
@@ -336,12 +624,17 @@ def prefilter(nodes):
         if _is_private_host(host):
             skipped += 1
             continue
+        if not _validate_uri(node):
+            bad_uri += 1
+            continue
         valid.append(node)
-    return valid, skipped
+    if bad_uri:
+        print(f'  URI 校验过滤: {bad_uri} 个（sing-box 不兼容）')
+    return valid, skipped + bad_uri
 
 
 def deep_deduplicate(nodes):
-    """按 (协议, host, port) 深度去重，保留首次出现的节点"""
+    """按 (协议, host, port) 深度去重，保留首次出现（调用方应保证高优先级在前）"""
     seen = set()
     result = []
     for node in nodes:
@@ -356,9 +649,13 @@ def deep_deduplicate(nodes):
     return result
 
 
-# ===== 测活：L1 TCP + L2 TLS 两层漏斗 =====
+# ===== 测活：L1 TCP + L2 TLS（协议感知） =====
 
-TLS_PORTS = {443, 2053, 2083, 2087, 2096, 8443, 8880}
+# 常见 TLS 入口端口 + 代理常用 TLS 端口
+TLS_PORTS = {
+    443, 2053, 2083, 2087, 2096, 8443, 8880, 9443, 10443, 6443, 7443,
+}
+
 
 _tls_ctx = ssl.create_default_context()
 _tls_ctx.check_hostname = False
@@ -367,7 +664,7 @@ _tls_ctx.verify_mode = ssl.CERT_NONE
 
 async def _check_tcp(host, port):
     """L1: TCP 连接测试，返回延迟(ms)或 None"""
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     t0 = loop.time()
     try:
         _, w = await asyncio.wait_for(
@@ -375,7 +672,10 @@ async def _check_tcp(host, port):
         )
         latency = (loop.time() - t0) * 1000
         w.close()
-        await w.wait_closed()
+        try:
+            await w.wait_closed()
+        except Exception:
+            pass
         return latency
     except Exception:
         return None
@@ -383,7 +683,7 @@ async def _check_tcp(host, port):
 
 async def _check_tls(host, port, sni=None):
     """L2: TLS 握手验证，返回延迟(ms)或 None"""
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     t0 = loop.time()
     try:
         _, w = await asyncio.wait_for(
@@ -393,7 +693,10 @@ async def _check_tls(host, port, sni=None):
         )
         latency = (loop.time() - t0) * 1000
         w.close()
-        await w.wait_closed()
+        try:
+            await w.wait_closed()
+        except Exception:
+            pass
         return latency
     except Exception:
         return None
@@ -409,32 +712,73 @@ def _extract_sni(uri):
         qs = uri.split('?', 1)[1].split('#')[0] if '?' in uri else ''
         for param in qs.split('&'):
             if param.startswith('sni='):
-                return param[4:] or None
+                return unquote(param[4:]) or None
+            if param.startswith('host='):
+                # host 可作 sni 备选
+                val = unquote(param[5:]) or None
+                if val:
+                    return val
         return None
     except Exception:
         return None
 
 
+def _requires_tls(uri, port):
+    """协议感知：声明了 TLS/REALITY 的节点必须过 TLS 握手"""
+    try:
+        if uri.startswith('trojan://') or uri.startswith('hy2://') or uri.startswith('hysteria'):
+            return True
+        if uri.startswith('vmess://'):
+            raw = uri[8:].split('#')[0]
+            info = json.loads(base64.b64decode(_pad_b64(raw)).decode())
+            tls = str(info.get('tls', '')).lower()
+            return tls in ('tls', '1', 'true', 'reality')
+        if uri.startswith('vless://'):
+            qs = uri.split('?', 1)[1].split('#')[0] if '?' in uri else ''
+            params = {}
+            for param in qs.split('&'):
+                if '=' in param:
+                    k, v = param.split('=', 1)
+                    params[k.lower()] = unquote(v).lower()
+            sec = params.get('security', '')
+            return sec in ('tls', 'reality')
+        return port in TLS_PORTS
+    except Exception:
+        return port in TLS_PORTS
+
+
 async def test_alive(nodes):
     sem = asyncio.Semaphore(TCP_CONCURRENCY)
     parse_fail = 0
+    tls_fail = 0
 
     async def _test(node):
-        nonlocal parse_fail
+        nonlocal parse_fail, tls_fail
         host, port = parse_host_port(node)
         if not host or not port:
             parse_fail += 1
             return None
         async with sem:
-            # L1: TCP
+            need_tls = _requires_tls(node, port)
+            if need_tls:
+                sni = _extract_sni(node)
+                latency = await _check_tls(host, port, sni)
+                if latency is None:
+                    # TLS 失败再尝试裸 TCP，仍失败才判死
+                    # 但对明确 TLS 协议，TLS 失败直接丢弃（避免“端口开着”假活）
+                    tls_fail += 1
+                    return None
+                return (node, latency)
+
             latency = await _check_tcp(host, port)
             if latency is None:
                 return None
-            # L2: TLS 端口做 TLS 握手二次验证
+            # 常见 TLS 端口即使协议未声明也做 TLS 二次验证
             if port in TLS_PORTS:
                 sni = _extract_sni(node)
                 tls_latency = await _check_tls(host, port, sni)
                 if tls_latency is None:
+                    tls_fail += 1
                     return None
                 latency = tls_latency
             return (node, latency)
@@ -445,8 +789,19 @@ async def test_alive(nodes):
 
     alive.sort(key=lambda x: x[1])
 
+    # 丢弃延迟超阈值的节点
+    before_trim = len(alive)
+    alive = [(node, lat) for node, lat in alive if lat <= LATENCY_MAX_MS]
+    trimmed = before_trim - len(alive)
+
+    # 输出上限：保留延迟最低的 N 个
+    if MAX_OUTPUT_NODES and len(alive) > MAX_OUTPUT_NODES:
+        print(f'  输出上限: {len(alive)} -> {MAX_OUTPUT_NODES}（按延迟截断）')
+        alive = alive[:MAX_OUTPUT_NODES]
+
     avg_latency = sum(lat for _, lat in alive) / len(alive) if alive else 0
-    print(f'  存活: {len(alive)} | 失联: {dead} | 解析失败: {parse_fail}')
+    print(f'  存活: {len(alive)} | 失联: {dead} | TLS失败: {tls_fail} | '
+          f'高延迟丢弃(>{LATENCY_MAX_MS}ms): {trimmed} | 解析失败: {parse_fail}')
     if alive:
         print(f'  平均延迟: {avg_latency:.0f}ms | 最快: {alive[0][1]:.0f}ms | 最慢: {alive[-1][1]:.0f}ms')
 
@@ -611,12 +966,12 @@ async def async_main():
     print(f'  有效: {len(valid)} | 过滤: {skipped}\n')
 
     # 3. 深度去重
-    print('[3/5] 深度去重 (协议+地址+端口)...')
+    print('[3/5] 深度去重 (协议+地址+端口，高优先级优先)...')
     unique = deep_deduplicate(valid)
     print(f'  {len(valid)} -> {len(unique)} (去除 {len(valid) - len(unique)} 重复)\n')
 
     # 4. 测活
-    print(f'[4/5] 测活: L1 TCP + L2 TLS (并发{TCP_CONCURRENCY} 超时{TCP_TIMEOUT}s)...')
+    print(f'[4/5] 测活: 协议感知 TCP/TLS (并发{TCP_CONCURRENCY} 超时{TCP_TIMEOUT}s 延迟≤{LATENCY_MAX_MS}ms)...')
     alive = await test_alive(unique)
 
     # 5. 地区分类
@@ -663,6 +1018,9 @@ async def async_main():
         'after_prefilter': len(valid),
         'unique_nodes': len(unique),
         'alive_nodes': len(alive),
+        'latency_max_ms': LATENCY_MAX_MS,
+        'tcp_timeout': TCP_TIMEOUT,
+        'max_output_nodes': MAX_OUTPUT_NODES,
         'country_stats': country_stats,
         'sources': source_stats,
     }

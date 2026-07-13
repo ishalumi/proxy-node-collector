@@ -20,23 +20,26 @@ subscriptions:
 
 ## 数据源
 
-见 [`sources.yaml`](sources.yaml)，当前聚合 20 个公开源（15 个仓库/站点）：
+见 [`sources.yaml`](sources.yaml)。策略是**少而精**：
 
-- **chengaopan/AutoMergePublicNodes** - 大型 base64 聚合源
-- **barry-far/V2ray-Config** - 全协议聚合（每 15 分钟更新）
-- **MatinGhanbari/v2ray-configs** - 超大节点池（7500+ 节点）
-- **mahdibland/V2RayAggregator** - Eternity 过滤聚合（每 12 小时）
-- **Epodonios/v2ray-configs** - 自动更新节点池（7000+ 节点）
-- **xyfqzy/free-nodes** - 多源采集聚合
-- **Barabama/FreeNodes** - 多子源爬虫 (nodefree, v2rayshare, wenode 等)
-- **peasoft/NoMoreWalls** - 高频抓取合并（每日多次）
-- **mfuu/v2ray** - V2Ray 订阅（每 8 小时更新）
-- **ermaozi/get_subscribe** - 自动订阅采集（每 12 小时）
-- **yzcjd/jiedian** - Telegram 频道节点聚合
-- **snakem982/proxypool** - Clash Meta 聚合池
-- **free-nodes/clashfree** - 每日快照源
-- **mianfeiclash.com** - 非 GitHub 网站日更源
-- **Pawdroid/Free-servers** - 固定订阅备用源
+- **blue2sea/public**（优先）：从 [bq2015/FreeProxies](https://github.com/bq2015/FreeProxies) 自动解析当日 token，展开 Clash `proxy-providers` 嵌套节点
+- **mahdibland / peasoft / Pawdroid / ermaozi** 等中等体量、相对干净的源
+- 超大垃圾池（Epodonios / barry-far / MatinGhanbari 等）**严格 limit**，`v2go` / `SubCrawler` 默认关闭
+
+### 测活说明
+
+本仓库在 GitHub Actions 上做 **协议感知 TCP + TLS 握手**测活（不是完整代理拨号）：
+
+| 项 | 默认 |
+|----|------|
+| TCP/TLS 超时 | `3.5s` |
+| 延迟上限 | `2500ms` |
+| 输出上限 | `2500` 节点（按延迟截断） |
+| CDN 同类节点 | 每提供商最多 `30` |
+
+> **为什么 easy_proxies 只有 ~100 健康节点？**  
+> easy_proxies 会用 sing-box **真实出站**访问 `cp.cloudflare.com/generate_204`，能抓到鉴权失败 / TLS 慢 / 假 200。  
+> 本仓库的 TCP 开端口 ≠ 代理可用。收紧超时与源质量后，下游真实可用率会明显提高，但数量会变少——这是预期行为。
 
 ## 更新频率
 
@@ -50,14 +53,23 @@ GitHub Actions **每 6 小时**自动运行，也支持手动触发。
 # 普通源
 - name: "新源"
   url: "https://example.com/nodes.txt"
+  priority: 60   # 越大越优先保留（去重时）
+  limit: 500     # 可选，防止膨胀
 
 # 动态日期 URL
 - name: "日期源"
   url_template: "https://example.com/nodes_{date}.txt"
   date_format: "%Y%m%d"
+
+# Clash 壳 + proxy-providers
+- name: "provider源"
+  url: "https://example.com/clash.yml"
+  resolve_providers: true
+  headers:
+    User-Agent: "ClashforWindows/0.20.39"
 ```
 
-脚本自动识别 base64 / 纯文本格式，无需手动指定。
+脚本自动识别 base64 / 纯文本 / Clash YAML，无需手动指定。
 
 ## 本地运行
 

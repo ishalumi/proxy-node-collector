@@ -1,77 +1,143 @@
 # 节点聚合源配置
-# 添加新源只需追加条目，脚本自动识别 base64/纯文本格式
-# 支持 url_template + date_format 处理动态日期 URL
+# 策略：少而精。优先「已测活/体量适中」的源，砍掉超大垃圾聚合池。
+# blue2sea 公共 Clash 订阅 token 每日轮换，由 fetch.py 从 FreeProxies README 自动解析。
 
 sources:
-  # --- 大型聚合仓库 ---
-  - name: "AutoMergePublicNodes"
-    url: "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"
-
-  - name: "barry-far/V2ray-Config"
-    url: "https://raw.githubusercontent.com/barry-far/V2ray-Config/main/All_Configs_Sub.txt"
-
-  - name: "MatinGhanbari/v2ray-configs"
-    url: "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt"
+  # --- 高质量/已过滤源（优先） ---
+  - name: "blue2sea/public"
+    # 入口页会 429/空壳；真正节点在 proxy-providers 嵌套 URL
+    # token 由 fetch.py 动态解析；此 url 作 fallback
+    url: "https://blue2sea.com/clash/2143c2ec19da075e495552259ad4bade"
+    dynamic: blue2sea
+    headers:
+      User-Agent: "ClashforWindows/0.20.39"
+    resolve_providers: true
+    priority: 100
 
   - name: "mahdibland/V2RayAggregator"
     url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/Eternity"
+    priority: 90
 
-  - name: "Epodonios/v2ray-configs"
-    url: "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt"
+  - name: "mahdibland/V2RayAggregatorAir"
+    url: "https://raw.githubusercontent.com/mahdibland/V2RayAggregator/master/EternityAir"
+    priority: 90
 
-  - name: "xyfqzy/free-nodes"
-    url: "https://raw.githubusercontent.com/xyfqzy/free-nodes/main/ppt.txt"
-
-  # --- Barabama/FreeNodes 各子源 ---
-  - name: "Barabama/nodefree"
-    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/nodefree.txt"
-
-  - name: "Barabama/v2rayshare"
-    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/v2rayshare.txt"
-
-  - name: "Barabama/wenode"
-    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/wenode.txt"
-
-  - name: "Barabama/ndnode"
-    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/ndnode.txt"
-
-  - name: "Barabama/yudou66"
-    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/yudou66.txt"
-
-  # --- 定时更新源 ---
   - name: "peasoft/NoMoreWalls"
     url: "https://raw.githubusercontent.com/peasoft/NoMoreWalls/master/list.txt"
+    priority: 85
 
-  - name: "mfuu/v2ray"
-    url: "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray"
+  - name: "Pawdroid/Free-servers"
+    url: "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"
+    priority: 80
 
   - name: "ermaozi/get_subscribe"
     url: "https://raw.githubusercontent.com/ermaozi/get_subscribe/main/subscribe/v2ray.txt"
+    priority: 80
 
-  - name: "yzcjd/jiedian"
-    url: "https://raw.githubusercontent.com/yzcjd/jiedian/main/%40yzcjd"
+  - name: "chengaopan/AutoMergePublicNodes"
+    url: "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"
+    priority: 75
 
-  # --- proxypool 主聚合源 ---
-  - name: "proxypool/clash-meta"
-    url: "https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta.yaml"
+  - name: "freefq/free"
+    url: "https://raw.githubusercontent.com/freefq/free/master/v2"
+    priority: 70
 
-  - name: "proxypool/clash-meta-2"
-    url: "https://raw.githubusercontent.com/snakem982/proxypool/main/source/clash-meta-2.yaml"
-
-  # --- clashfree 每日快照 ---
-  - name: "clashfree/daily"
+  - name: "free-nodes/clashfree"
     url_template: "https://raw.githubusercontent.com/free-nodes/clashfree/main/clash{date}.yml"
     date_format: "%Y%m%d"
+    resolve_providers: true
+    priority: 70
 
-  # --- 非 GitHub 网站源 ---
-  - name: "mianfeiclash/daily"
-    url_template: "https://node.mianfeiclash.com/uploads/{date}.txt"
-    date_format: "%Y/%m/0-%Y%m%d"
+  # --- 中等体量源 ---
+  - name: "Barabama/yudou66"
+    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/yudou66.txt"
+    priority: 60
 
-  # --- clashnodev2ray clash 格式 (洗为标准 URI) ---
-  - name: "clashnodev2ray/clash"
-    url: "https://clashnodev2ray.github.io/clash.yaml"
+  - name: "Barabama/nodefree"
+    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/nodefree.txt"
+    priority: 55
 
-  # --- 备用固定订阅源 ---
-  - name: "Pawdroid/sub"
-    url: "https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub"
+  - name: "Barabama/v2rayshare"
+    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/v2rayshare.txt"
+    priority: 55
+
+  - name: "Barabama/wenode"
+    url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/wenode.txt"
+    priority: 55
+
+  - name: "Mahdi0024/ProxyCollector"
+    url: "https://raw.githubusercontent.com/Mahdi0024/ProxyCollector/master/sub/proxies.txt"
+    limit: 800
+    priority: 50
+
+  - name: "NiREvil/vless"
+    url: "https://raw.githubusercontent.com/NiREvil/vless/main/sub/clash-meta.yml"
+    resolve_providers: true
+    priority: 50
+
+  - name: "roosterkid/openproxylist"
+    url: "https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_RAW.txt"
+    limit: 300
+    priority: 45
+
+  - name: "ALIILAPRO/v2rayNG-Config"
+    url: "https://raw.githubusercontent.com/ALIILAPRO/v2rayNG-Config/main/server.txt"
+    priority: 45
+
+  - name: "awesome-vpn/awesome-vpn"
+    url: "https://raw.githubusercontent.com/awesome-vpn/awesome-vpn/master/all"
+    limit: 300
+    priority: 40
+
+  - name: "mfuu/v2ray"
+    url: "https://raw.githubusercontent.com/mfuu/v2ray/master/v2ray"
+    priority: 40
+
+  - name: "shaoyouvip/free"
+    url: "https://raw.githubusercontent.com/shaoyouvip/free/main/base64.txt"
+    priority: 35
+
+  - name: "PuddinCat/BestClash"
+    url: "https://raw.githubusercontent.com/PuddinCat/BestClash/main/proxies.yaml"
+    resolve_providers: true
+    priority: 35
+
+  - name: "wrfree/free"
+    url: "https://raw.githubusercontent.com/wrfree/free/main/v2"
+    priority: 30
+
+  # --- 大池限流补充（垃圾率高，严格裁剪） ---
+  - name: "Epodonios/v2ray-configs"
+    url: "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt"
+    limit: 500
+    priority: 20
+
+  - name: "barry-far/V2ray-Config"
+    url: "https://raw.githubusercontent.com/barry-far/V2ray-Config/main/All_Configs_Sub.txt"
+    limit: 500
+    priority: 20
+
+  - name: "MatinGhanbari/v2ray-configs"
+    url: "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt"
+    limit: 400
+    priority: 15
+
+  - name: "Surfboardv2ray/TGParse"
+    url: "https://raw.githubusercontent.com/Surfboardv2ray/TGParse/main/splitted/mixed"
+    limit: 400
+    priority: 15
+
+  - name: "MhdiTaheri/V2rayCollector"
+    url: "https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix"
+    limit: 400
+    priority: 15
+
+  # 超大未测活池：默认关掉。需要时取消注释，但务必 limit 极低。
+  # - name: "Danialsamadi/v2go"
+  #   url: "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
+  #   limit: 200
+  #   priority: 5
+  # - name: "Leon406/SubCrawler-vless"
+  #   url: "https://raw.githubusercontent.com/Leon406/SubCrawler/master/sub/share/vless"
+  #   limit: 200
+  #   priority: 5
