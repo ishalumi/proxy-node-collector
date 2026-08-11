@@ -402,11 +402,14 @@ def _clash_proxy_to_uri(p):
         return None
 
     if ptype == 'vmess':
+        net = (p.get('network', 'tcp') or 'tcp').lower()
+        if net == 'raw':
+            return None  # sing-box 不认 raw transport，会 panic
         info = {
             'v': '2', 'ps': p.get('name', ''),
             'add': server, 'port': str(port),
             'id': p.get('uuid', ''), 'aid': str(p.get('alterId', 0)),
-            'scy': p.get('cipher', 'auto'), 'net': p.get('network', 'tcp'),
+            'scy': p.get('cipher', 'auto'), 'net': net,
             'type': 'none', 'tls': 'tls' if p.get('tls') else '',
         }
         ws = p.get('ws-opts', {}) or {}
