@@ -568,6 +568,9 @@ def _validate_uri(node):
             port = info.get('port')
             if not port or str(port) == '0':
                 return False
+            net = (info.get('net') or info.get('network') or '').lower()
+            if net == 'raw':
+                return False  # sing-box 不认 raw transport，会 panic
         elif node.startswith('ss://'):
             content = node[5:].split('#')[0]
             if '@' in content:
