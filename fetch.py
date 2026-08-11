@@ -3,6 +3,7 @@
 
 import asyncio
 import base64
+import html
 import ipaddress
 import json
 import os
@@ -397,7 +398,7 @@ def _clash_proxy_to_uri(p):
     ptype = p.get('type', '').lower()
     server = p.get('server', '')
     port = p.get('port', 0)
-    name = quote(str(p.get('name', '')), safe='')
+    name = quote(html.unescape(str(p.get('name', ''))), safe='')
     if not server or not port:
         return None
 
@@ -567,6 +568,8 @@ _GOOD_VLESS_FLOWS = {'', 'xtls-rprx-vision'}
 def _validate_uri(node):
     """检查节点 URI 是否能被 sing-box 正确解析，过滤掉会导致 panic 的节点"""
     try:
+        if '&amp;' in node:
+            return False  # HTML 实体未解码，query 解析失败会导致 panic
         if node.startswith('vmess://'):
             raw = node[8:].split('#')[0]
             info = json.loads(base64.b64decode(_pad_b64(raw)).decode())
@@ -607,6 +610,7 @@ def _validate_uri(node):
             qs = ''
             if '?' in node:
                 qs = node.split('?', 1)[1].split('#')[0]
+            qs = html.unescape(qs)
             params = {}
             for param in qs.split('&'):
                 if '=' in param:
@@ -617,6 +621,11 @@ def _validate_uri(node):
                 return False
             encryption = params.get('encryption', 'none')
             if encryption not in ('none', ''):
+                return False
+            security = params.get('security', '')
+            if security == 'reality' and not params.get('pbk'):
+                return False  # reality 必须有 public_key，缺 pbk 会 panic
+            if security not in ('', 'none', 'tls', 'reality'):
                 return False
             ntype = params.get('type', '')
             if ntype and ntype not in ('tcp', 'ws', 'grpc', 'httpupgrade', 'http'):
