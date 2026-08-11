@@ -423,6 +423,8 @@ def _clash_proxy_to_uri(p):
 
     if ptype == 'vless':
         params = _build_clash_params(p)
+        if params is None:
+            return None  # transport 不兼容，丢弃
         flow = p.get('flow', '')
         if flow:
             params['flow'] = flow
@@ -430,6 +432,8 @@ def _clash_proxy_to_uri(p):
 
     if ptype == 'trojan':
         params = _build_clash_params(p)
+        if params is None:
+            return None  # transport 不兼容，丢弃
         return f"trojan://{p.get('password', '')}@{server}:{port}?{_urlencode(params)}#{name}"
 
     if ptype == 'ss':
@@ -464,6 +468,8 @@ def _build_clash_params(p):
         params['allowInsecure'] = '1'
     net = p.get('network', '')
     if net:
+        if net not in ('tcp', 'ws', 'grpc', 'httpupgrade', 'http'):
+            return None  # xhttp/splithttp/h2/raw 等会 panic，整体丢弃该节点
         params['type'] = net
     ws = p.get('ws-opts', {}) or {}
     if ws:
@@ -611,6 +617,19 @@ def _validate_uri(node):
                 return False
             encryption = params.get('encryption', 'none')
             if encryption not in ('none', ''):
+                return False
+            ntype = params.get('type', '')
+            if ntype and ntype not in ('tcp', 'ws', 'grpc', 'httpupgrade', 'http'):
+                return False  # xhttp/splithttp/h2/raw 等 sing-box 不支持或会 panic
+        elif node.startswith('trojan://') or node.startswith('hy2://') or node.startswith('hysteria2://'):
+            qs = node.split('?', 1)[1].split('#')[0] if '?' in node else ''
+            ntype = ''
+            for param in qs.split('&'):
+                if '=' in param:
+                    k, v = param.split('=', 1)
+                    if k.lower() == 'type':
+                        ntype = v.lower()
+            if ntype and ntype not in ('tcp', 'ws', 'grpc', 'httpupgrade', 'http'):
                 return False
         return True
     except Exception:
