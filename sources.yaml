@@ -48,6 +48,15 @@ sources:
     resolve_providers: true
     priority: 70
 
+  # --- 2026-08-19 新增源（easy 池健康节点下滑，补量） ---
+  - name: "free-nodes/v2rayfree"
+    url: "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/sub"
+    priority: 75
+
+  - name: "cbusifabcap/daily_free_vpn"
+    url: "https://raw.githubusercontent.com/cbusifabcap/daily_free_vpn/main/Z.txt"
+    priority: 65
+
   # --- 中等体量源 ---
   - name: "Barabama/yudou66"
     url: "https://raw.githubusercontent.com/Barabama/FreeNodes/main/nodes/yudou66.txt"
