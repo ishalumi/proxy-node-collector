@@ -24,12 +24,12 @@ sources:
   # 2026-08-23 增大 limit：多进 L3 测活窗口，能过测活的才进池
   - name: "ebrasha/free-v2ray-public-list-vless"
     url: "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt"
-    limit: 8000
+    limit: 20000
     priority: 85
 
   - name: "ebrasha/free-v2ray-public-list-vmess"
     url: "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vmess_configs.txt"
-    limit: 3000
+    limit: 6000
     priority: 80
 
   - name: "blue2sea/public"
@@ -49,7 +49,7 @@ sources:
 
   - name: "Mahdi0024/ProxyCollector"
     url: "https://raw.githubusercontent.com/Mahdi0024/ProxyCollector/master/sub/proxies.txt"
-    limit: 1500
+    limit: 2500
     priority: 85
 
   - name: "ALIILAPRO/v2rayNG-Config"
@@ -58,22 +58,22 @@ sources:
 
   - name: "Epodonios/v2ray-configs"
     url: "https://raw.githubusercontent.com/Epodonios/v2ray-configs/main/All_Configs_Sub.txt"
-    limit: 1500
+    limit: 3000
     priority: 75
 
   - name: "barry-far/V2ray-Config"
     url: "https://raw.githubusercontent.com/barry-far/V2ray-Config/main/All_Configs_Sub.txt"
-    limit: 1200
+    limit: 2500
     priority: 70
 
   - name: "MatinGhanbari/v2ray-configs"
     url: "https://raw.githubusercontent.com/MatinGhanbari/v2ray-configs/main/subscriptions/v2ray/all_sub.txt"
-    limit: 1000
+    limit: 2000
     priority: 65
 
   - name: "MhdiTaheri/V2rayCollector"
     url: "https://raw.githubusercontent.com/MhdiTaheri/V2rayCollector/main/sub/mix"
-    limit: 1000
+    limit: 1500
     priority: 60
 
   # --- 中小体量源（保留） ---
