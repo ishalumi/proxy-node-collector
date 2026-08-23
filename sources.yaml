@@ -8,27 +8,28 @@
 
 sources:
   # --- 高质量/已过滤源（优先） ---
-  # 2026-08-23 打野新增：0xRadikal/Free-v2ray-Configs（15min 自动更新，light 精选档 2000+ 节点）
+  # 2026-08-23 打野新增：0xRadikal/Free-v2ray-Configs（15min 自动更新，light 精选档全量）
   - name: "0xRadikal/Free-v2ray-Configs"
     url: "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/light/configs_base64.txt"
-    limit: 2000
+    limit: 3000
     priority: 95
 
-  # 2026-08-23 exa 打野新增：sing-box 真 HTTP 204 验证活跃节点，每小时刷新
+  # 2026-08-23 exa 打野新增：sing-box 真 HTTP 204 验证活跃节点，每小时刷新（全量）
   - name: "Au1rxx/free-vpn-subscriptions"
     url: "https://raw.githubusercontent.com/Au1rxx/free-vpn-subscriptions/main/output/v2ray-base64.txt"
-    limit: 1500
+    limit: 2000
     priority: 92
 
   # 2026-08-23 exa 打野新增：ebrasha 巨量池（vless 3.5万 + vmess 6千，15min 更新）
+  # 2026-08-23 增大 limit：多进 L3 测活窗口，能过测活的才进池
   - name: "ebrasha/free-v2ray-public-list-vless"
     url: "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt"
-    limit: 2000
+    limit: 8000
     priority: 85
 
   - name: "ebrasha/free-v2ray-public-list-vmess"
     url: "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vmess_configs.txt"
-    limit: 800
+    limit: 3000
     priority: 80
 
   - name: "blue2sea/public"
