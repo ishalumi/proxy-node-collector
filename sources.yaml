@@ -14,6 +14,23 @@ sources:
     limit: 2000
     priority: 95
 
+  # 2026-08-23 exa 打野新增：sing-box 真 HTTP 204 验证活跃节点，每小时刷新
+  - name: "Au1rxx/free-vpn-subscriptions"
+    url: "https://raw.githubusercontent.com/Au1rxx/free-vpn-subscriptions/main/output/v2ray-base64.txt"
+    limit: 1500
+    priority: 92
+
+  # 2026-08-23 exa 打野新增：ebrasha 巨量池（vless 3.5万 + vmess 6千，15min 更新）
+  - name: "ebrasha/free-v2ray-public-list-vless"
+    url: "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt"
+    limit: 2000
+    priority: 85
+
+  - name: "ebrasha/free-v2ray-public-list-vmess"
+    url: "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vmess_configs.txt"
+    limit: 800
+    priority: 80
+
   - name: "blue2sea/public"
     # 入口页会 429/空壳；真正节点在 proxy-providers 嵌套 URL
     # token 由 fetch.py 动态解析；此 url 作 fallback
