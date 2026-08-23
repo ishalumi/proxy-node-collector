@@ -68,9 +68,10 @@ def to_clash(uri, idx):
         return p
 
     if u.scheme == "vmess":
-        raw = u.username or ""
-        # vmess://base64(json) 形态
-        if "@" not in raw and raw.count(":") == 0:
+        # vmess://base64(json) 形态：无 @ 时 netloc 就是 base64 payload（hostname 会被小写化，必须用 netloc）
+        userinfo, _, hostpart = u.netloc.rpartition("@")
+        raw = userinfo or hostpart.split(":")[0]
+        if raw and ":" not in raw:
             info = _b64d(raw)
             if not info:
                 return None
