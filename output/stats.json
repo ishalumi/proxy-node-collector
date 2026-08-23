@@ -1,75 +1,80 @@
 {
-  "updated_at": "2026-08-23 18:14:39",
+  "updated_at": "2026-08-23 18:21:11",
   "total_fetched": 22873,
-  "after_prefilter": 19695,
-  "unique_nodes": 9323,
-  "alive_nodes": 3042,
+  "after_prefilter": 19626,
+  "unique_nodes": 9281,
+  "alive_nodes": 2958,
   "latency_max_ms": 1500,
   "tcp_timeout": 3.5,
   "max_output_nodes": 4000,
   "country_stats": {
-    "AE": 25,
-    "AL": 4,
+    "AE": 27,
+    "AL": 3,
     "AM": 2,
+    "AQ": 1,
     "AT": 4,
-    "AU": 17,
-    "BE": 8,
-    "BG": 5,
-    "BR": 13,
-    "BY": 2,
-    "CA": 25,
-    "CH": 20,
+    "AU": 6,
+    "AZ": 2,
+    "BE": 6,
+    "BG": 6,
+    "BR": 12,
+    "BY": 3,
+    "CA": 21,
+    "CH": 23,
     "CLOUDFLARE": 30,
-    "CLOUDFRONT": 5,
+    "CLOUDFRONT": 6,
     "CN": 6,
-    "CY": 4,
-    "CZ": 5,
-    "DE": 189,
-    "DK": 3,
-    "EE": 14,
-    "ES": 7,
+    "CY": 1,
+    "CZ": 6,
+    "DE": 190,
+    "DK": 2,
+    "EE": 16,
+    "ES": 10,
     "FASTLY": 30,
     "FI": 32,
-    "FR": 56,
-    "GB": 107,
+    "FR": 55,
+    "GB": 98,
     "GE": 1,
-    "GOOGLE": 7,
+    "GOOGLE": 8,
     "GR": 2,
-    "HK": 70,
+    "HK": 56,
     "HU": 1,
     "IE": 3,
-    "IL": 2,
-    "IN": 10,
-    "IR": 19,
-    "IT": 7,
-    "JP": 51,
-    "KE": 1,
-    "KR": 15,
-    "KZ": 10,
+    "IL": 1,
+    "IN": 8,
+    "IR": 18,
+    "IS": 1,
+    "IT": 9,
+    "JP": 44,
+    "KR": 13,
+    "KZ": 14,
     "LT": 10,
-    "LV": 10,
+    "LV": 11,
     "MD": 2,
     "MH": 1,
-    "MY": 6,
-    "NL": 190,
-    "NO": 7,
+    "MK": 1,
+    "MX": 1,
+    "MY": 5,
+    "NL": 179,
+    "NO": 6,
     "NZ": 1,
     "PH": 2,
-    "PL": 57,
-    "PT": 1,
-    "RO": 7,
-    "RU": 107,
-    "SA": 1,
-    "SC": 115,
+    "PK": 1,
+    "PL": 45,
+    "RO": 8,
+    "RU": 104,
+    "SC": 114,
     "SE": 23,
-    "SG": 53,
-    "TH": 2,
-    "TR": 17,
+    "SG": 47,
+    "TH": 3,
+    "TJ": 1,
+    "TR": 18,
     "TW": 12,
-    "US": 286,
-    "UZ": 1,
+    "UA": 2,
+    "US": 276,
+    "UZ": 2,
     "VN": 5,
-    "ZA": 4
+    "ZA": 5
   },
   "sources": [
     {
@@ -81,52 +86,12 @@
       "priority": 100
     },
     {
-      "name": "ermaozi/get_subscribe",
-      "count": 25,
-      "raw_count": 25,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 50
-    },
-    {
-      "name": "ebrasha/free-v2ray-public-list-vmess",
-      "count": 3000,
-      "raw_count": 5975,
-      "trimmed": 2975,
-      "status": "ok",
-      "priority": 80
-    },
-    {
       "name": "Barabama/wenode",
       "count": 23,
       "raw_count": 23,
       "trimmed": 0,
       "status": "ok",
       "priority": 45
-    },
-    {
-      "name": "Barabama/nodefree",
-      "count": 23,
-      "raw_count": 23,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 45
-    },
-    {
-      "name": "Barabama/v2rayshare",
-      "count": 23,
-      "raw_count": 23,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 45
-    },
-    {
-      "name": "ebrasha/free-v2ray-public-list-vless",
-      "count": 8000,
-      "raw_count": 35298,
-      "trimmed": 27298,
-      "status": "ok",
-      "priority": 85
     },
     {
       "name": "Barabama/yudou66",
@@ -137,20 +102,12 @@
       "priority": 50
     },
     {
-      "name": "Mahdi0024/ProxyCollector",
-      "count": 233,
-      "raw_count": 233,
+      "name": "Barabama/nodefree",
+      "count": 23,
+      "raw_count": 23,
       "trimmed": 0,
       "status": "ok",
-      "priority": 85
-    },
-    {
-      "name": "ALIILAPRO/v2rayNG-Config",
-      "count": 1161,
-      "raw_count": 1161,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 80
+      "priority": 45
     },
     {
       "name": "MhdiTaheri/V2rayCollector",
@@ -161,20 +118,20 @@
       "priority": 60
     },
     {
-      "name": "roosterkid/openproxylist",
-      "count": 150,
-      "raw_count": 150,
+      "name": "ermaozi/get_subscribe",
+      "count": 25,
+      "raw_count": 25,
       "trimmed": 0,
       "status": "ok",
-      "priority": 40
+      "priority": 50
     },
     {
-      "name": "cbusifabcap/daily_free_vpn",
-      "count": 1475,
-      "raw_count": 1475,
+      "name": "Barabama/v2rayshare",
+      "count": 23,
+      "raw_count": 23,
       "trimmed": 0,
       "status": "ok",
-      "priority": 90
+      "priority": 45
     },
     {
       "name": "Au1rxx/free-vpn-subscriptions",
@@ -185,6 +142,22 @@
       "priority": 92
     },
     {
+      "name": "ALIILAPRO/v2rayNG-Config",
+      "count": 1161,
+      "raw_count": 1161,
+      "trimmed": 0,
+      "status": "ok",
+      "priority": 80
+    },
+    {
+      "name": "ebrasha/free-v2ray-public-list-vmess",
+      "count": 3000,
+      "raw_count": 5962,
+      "trimmed": 2962,
+      "status": "ok",
+      "priority": 80
+    },
+    {
       "name": "MatinGhanbari/v2ray-configs",
       "count": 1000,
       "raw_count": 3998,
@@ -193,12 +166,12 @@
       "priority": 65
     },
     {
-      "name": "Epodonios/v2ray-configs",
-      "count": 1500,
-      "raw_count": 6903,
-      "trimmed": 5403,
+      "name": "Mahdi0024/ProxyCollector",
+      "count": 233,
+      "raw_count": 233,
+      "trimmed": 0,
       "status": "ok",
-      "priority": 75
+      "priority": 85
     },
     {
       "name": "0xRadikal/Free-v2ray-Configs",
@@ -215,6 +188,38 @@
       "trimmed": 5700,
       "status": "ok",
       "priority": 70
+    },
+    {
+      "name": "roosterkid/openproxylist",
+      "count": 150,
+      "raw_count": 150,
+      "trimmed": 0,
+      "status": "ok",
+      "priority": 40
+    },
+    {
+      "name": "ebrasha/free-v2ray-public-list-vless",
+      "count": 8000,
+      "raw_count": 35227,
+      "trimmed": 27227,
+      "status": "ok",
+      "priority": 85
+    },
+    {
+      "name": "cbusifabcap/daily_free_vpn",
+      "count": 1475,
+      "raw_count": 1475,
+      "trimmed": 0,
+      "status": "ok",
+      "priority": 90
+    },
+    {
+      "name": "Epodonios/v2ray-configs",
+      "count": 1500,
+      "raw_count": 6903,
+      "trimmed": 5403,
+      "status": "ok",
+      "priority": 75
     },
     {
       "name": "PuddinCat/BestClash",
