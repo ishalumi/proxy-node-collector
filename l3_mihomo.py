@@ -282,15 +282,28 @@ def main():
             if not wait_ready(ctl_port):
                 print(f"  [批 {batch}/{total_batches}] mihomo 未就绪，跳过", flush=True)
                 continue
-            # 并发调 delay
+            # 并发调 delay（每节点 2 次，免费节点抖动大，防单次误杀）
             import concurrent.futures
             passes = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=MIHOMO_WORKERS) as ex:
-                futures = {ex.submit(delay_probe, ctl_port, proxies[j]["name"], TIMEOUT_MS): j for j in range(len(proxies))}
-                for fut in concurrent.futures.as_completed(futures):
-                    j = futures[fut]
-                    lat = fut.result()
-                    if lat is not None and 0 < lat <= LATENCY_MAX_MS:
+                futures = {}
+
+                def _probe_twice(j):
+                    uri = chunk_uris[j]
+                    name = proxies[j]["name"]
+                    best = None
+                    for _ in range(2):
+                        lat = delay_probe(ctl_port, name, TIMEOUT_MS)
+                        if lat is not None and 0 < lat <= LATENCY_MAX_MS:
+                            best = min(best, lat) if best else lat
+                            break
+                        # 第一次失败等 300ms 再试，抖动节点有机会
+                        time.sleep(0.3)
+                    return j, best
+
+                for fut in [ex.submit(_probe_twice, j) for j in range(len(proxies))]:
+                    j, lat = fut.result()
+                    if lat is not None:
                         passes.append((chunk_uris[j], lat))
             passes.sort(key=lambda x: x[1])
             print(f"  [批 {batch}/{total_batches}] 通过 {len(passes)}/{len(chunk_uris)} (中位 {passes[len(passes)//2][1] if passes else 0}ms)", flush=True)
