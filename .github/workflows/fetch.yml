@@ -16,15 +16,15 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     # 收紧测活后仍可能要几分钟；给足时间
-    timeout-minutes: 20
+    timeout-minutes: 55
     permissions:
       contents: write
     env:
       # 比“端口开着就算活”更严：短超时 + 低延迟阈值
       TCP_CONCURRENCY: "500"
       TCP_TIMEOUT: "3.5"
-      LATENCY_MAX_MS: "2500"
-      MAX_OUTPUT_NODES: "2500"
+      LATENCY_MAX_MS: "1500"
+      MAX_OUTPUT_NODES: "4000"
       FETCH_WORKERS: "16"
       FETCH_TIMEOUT: "20"
     steps:
@@ -47,6 +47,14 @@ jobs:
 
       - name: Fetch nodes
         run: python -u fetch.py
+
+      - name: L3 real-traffic probe (mihomo HTTP 204)
+        # 端口/TLS 存活 ≠ 能转发。mihomo 真实加载代理 -> generate_204，
+        # 能把 HTTP 流量转发出来的节点才写回 nodes.txt（社区黄金标准）
+        run: |
+          python -u l3_mihomo.py
+          mv output/nodes.txt.l3 output/nodes.txt
+          wc -l output/nodes.txt
 
       - name: Commit and push
         run: |
