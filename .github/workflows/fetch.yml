@@ -24,7 +24,7 @@ jobs:
       TCP_CONCURRENCY: "500"
       TCP_TIMEOUT: "3.5"
       LATENCY_MAX_MS: "1500"
-      MAX_OUTPUT_NODES: "4000"
+      MAX_OUTPUT_NODES: "8000"
       FETCH_WORKERS: "16"
       FETCH_TIMEOUT: "20"
     steps:

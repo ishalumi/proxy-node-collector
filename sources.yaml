@@ -24,7 +24,7 @@ sources:
   # 2026-08-23 增大 limit：多进 L3 测活窗口，能过测活的才进池
   - name: "ebrasha/free-v2ray-public-list-vless"
     url: "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vless_configs.txt"
-    limit: 20000
+    limit: 30000
     priority: 85
 
   - name: "ebrasha/free-v2ray-public-list-vmess"
