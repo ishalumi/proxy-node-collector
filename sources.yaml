@@ -8,6 +8,12 @@
 
 sources:
   # --- 高质量/已过滤源（优先） ---
+  # 2026-08-23 打野新增：0xRadikal/Free-v2ray-Configs（15min 自动更新，light 精选档 2000+ 节点）
+  - name: "0xRadikal/Free-v2ray-Configs"
+    url: "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/light/configs_base64.txt"
+    limit: 2000
+    priority: 95
+
   - name: "blue2sea/public"
     # 入口页会 429/空壳；真正节点在 proxy-providers 嵌套 URL
     # token 由 fetch.py 动态解析；此 url 作 fallback
