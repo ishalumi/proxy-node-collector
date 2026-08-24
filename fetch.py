@@ -788,6 +788,9 @@ async def test_alive(nodes):
 
     async def _test(node):
         nonlocal parse_fail, tls_fail
+        # hy2/hysteria2 是 QUIC/UDP 协议，TCP 测活必然失败——直接放行交给 L3 mihomo 真实 UDP 探测
+        if node.startswith('hy2://') or node.startswith('hysteria2://') or node.startswith('hysteria://'):
+            return (node, 0)
         host, port = parse_host_port(node)
         if not host or not port:
             parse_fail += 1

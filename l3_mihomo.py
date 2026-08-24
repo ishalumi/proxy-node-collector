@@ -123,6 +123,18 @@ def to_clash(uri, idx):
             return {"name": name, "type": "ss", "server": host, "port": port, "cipher": method, "password": password}
         except Exception:
             return None
+
+    if u.scheme in ("hy2", "hysteria2", "hysteria"):
+        # hy2://pwd@host:port?sni=xxx&insecure=1#name
+        p = {
+            "name": name, "type": "hysteria2", "server": host, "port": port,
+            "password": u.username or "",
+        }
+        if qs.get("sni"):
+            p["sni"] = qs["sni"][0]
+        if qs.get("insecure"):
+            p["skip-cert-verify"] = qs["insecure"][0] in ("1", "true")
+        return p
     return None
 
 
@@ -193,6 +205,12 @@ def build_config(proxies, ctl_port, mixed_port):
         elif p["type"] == "ss":
             lines.append("    cipher: %s" % p["cipher"])
             lines.append("    password: \"%s\"" % p["password"])
+        elif p["type"] == "hysteria2":
+            lines.append("    password: \"%s\"" % p["password"])
+            if p.get("sni"):
+                lines.append("    sni: %s" % p["sni"])
+            if p.get("skip-cert-verify"):
+                lines.append("    skip-cert-verify: %s" % str(p["skip-cert-verify"]).lower())
     # rules: 默认全部走代理
     lines.append("rules:")
     lines.append("  - MATCH,DIRECT")
