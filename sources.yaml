@@ -21,6 +21,12 @@ sources:
     limit: 1000
     priority: 96
 
+  # 2026-08-25 加回 light 档当量（2156 条，含未验证精选；与 verified/fast 并行走量大路线）
+  - name: "0xRadikal/Free-v2ray-Configs-light"
+    url: "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/light/configs_base64.txt"
+    limit: 3000
+    priority: 94
+
   # 2026-08-23 exa 打野新增：sing-box 真 HTTP 204 验证活跃节点，每小时刷新（全量）
   - name: "Au1rxx/free-vpn-subscriptions"
     url: "https://raw.githubusercontent.com/Au1rxx/free-vpn-subscriptions/main/output/v2ray-base64.txt"
@@ -55,6 +61,12 @@ sources:
     url: "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt"
     limit: 1000
     priority: 85
+
+  # 2026-08-25 exa 打野新增：FastNodes everything 全量池（19.3万条，fetch.py limit=均匀采样 3000 条走 L3 漏斗）
+  - name: "rtwo2/FastNodes-everything"
+    url: "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/everything.txt"
+    limit: 3000
+    priority: 82
 
   - name: "blue2sea/public"
     # 入口页会 429/空壳；真正节点在 proxy-providers 嵌套 URL
