@@ -9,10 +9,17 @@
 sources:
   # --- 高质量/已过滤源（优先） ---
   # 2026-08-23 打野新增：0xRadikal/Free-v2ray-Configs（15min 自动更新，light 精选档全量）
+  # 2026-08-25 升级 light→verified：三轮真流量全过，比 light（未验证精选档）更严
   - name: "0xRadikal/Free-v2ray-Configs"
-    url: "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/light/configs_base64.txt"
+    url: "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/verified/configs_base64.txt"
     limit: 3000
     priority: 95
+
+  # 2026-08-25 exa 打野新增：0xRadikal fast 档（verified 且 median 延迟 < 800ms）
+  - name: "0xRadikal/Free-v2ray-Configs-fast"
+    url: "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/fast/configs_base64.txt"
+    limit: 1000
+    priority: 96
 
   # 2026-08-23 exa 打野新增：sing-box 真 HTTP 204 验证活跃节点，每小时刷新（全量）
   - name: "Au1rxx/free-vpn-subscriptions"
@@ -31,6 +38,23 @@ sources:
     url: "https://raw.githubusercontent.com/ebrasha/free-v2ray-public-list/refs/heads/main/vmess_configs.txt"
     limit: 6000
     priority: 80
+
+  # 2026-08-25 exa 打野新增：v2go Go 聚合器，每小时 Xray 真流量验证后发布 working configs（原底部注释「未测活」是旧认知已过时）
+  - name: "Danialsamadi/v2go"
+    url: "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
+    limit: 1500
+    priority: 90
+
+  # 2026-08-25 exa 打野新增：FastNodes 560+ 源聚合，verified=真 HTTP 204 通过（与 L3 同标准）
+  - name: "rtwo2/FastNodes-verified"
+    url: "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/verified.txt"
+    limit: 1500
+    priority: 88
+
+  - name: "rtwo2/FastNodes-top"
+    url: "https://raw.githubusercontent.com/rtwo2/FastNodes/main/sub/top.txt"
+    limit: 1000
+    priority: 85
 
   - name: "blue2sea/public"
     # 入口页会 429/空壳；真正节点在 proxy-providers 嵌套 URL
@@ -114,10 +138,7 @@ sources:
     priority: 30
 
   # 超大未测活池：默认关掉。需要时取消注释，但务必 limit 极低。
-  # - name: "Danialsamadi/v2go"
-  #   url: "https://raw.githubusercontent.com/Danialsamadi/v2go/main/AllConfigsSub.txt"
-  #   limit: 200
-  #   priority: 5
+  # （Danialsamadi/v2go 已 2026-08-25 启用为 priority 90 已验证源，勿重复添加）
   # - name: "Leon406/SubCrawler-vless"
   #   url: "https://raw.githubusercontent.com/Leon406/SubCrawler/master/sub/share/vless"
   #   limit: 200

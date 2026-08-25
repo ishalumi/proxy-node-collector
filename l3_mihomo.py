@@ -16,7 +16,7 @@ TIMEOUT_MS = int(os.environ.get("L3_TIMEOUT_MS", "4000"))
 LATENCY_MAX_MS = int(os.environ.get("L3_LATENCY_MAX_MS", "2000"))
 MIHOMO_BATCH = int(os.environ.get("MIHOMO_BATCH", "500"))
 MIHOMO_WORKERS = int(os.environ.get("MIHOMO_WORKERS", "30"))
-MAX_TEST_NODES = int(os.environ.get("L3_MAX_TEST_NODES", "4000"))
+MAX_TEST_NODES = int(os.environ.get("L3_MAX_TEST_NODES", "10000"))  # 2026-08-25: 全测（fetch.py 输出上限 MAX_OUTPUT_NODES=8000，10000 保证不截断前 N）
 
 def parse_uri(uri):
     try:
