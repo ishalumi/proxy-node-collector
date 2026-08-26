@@ -138,6 +138,14 @@ sources:
     limit: 300
     priority: 40
 
+  # 2026-08-26 复查复活：chengaopan/AutoMergePublicNodes（7988⭐，今天仍在 push）
+  # 8/22 曾因 raw=1 空壳砍掉；现在 list.txt 130 条（113 有效，hysteria2 98 为主）
+  # 注意 list_result.csv 显示其子源大多 0 节点（自身低产期），当补充源用
+  - name: "chengaopan/AutoMergePublicNodes"
+    url: "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt"
+    limit: 500
+    priority: 55
+
   # --- 需要 resolve_providers 的折叠源（保留观察） ---
   - name: "NiREvil/vless"
     url: "https://raw.githubusercontent.com/NiREvil/vless/main/sub/clash-meta.yml"
