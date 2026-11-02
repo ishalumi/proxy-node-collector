@@ -1,127 +1,112 @@
 {
-  "updated_at": "2026-11-01 21:36:57",
-  "total_fetched": 26003,
-  "after_prefilter": 22898,
-  "unique_nodes": 7738,
-  "alive_nodes": 2781,
+  "updated_at": "2026-11-02 03:57:45",
+  "total_fetched": 26952,
+  "after_prefilter": 23715,
+  "unique_nodes": 7908,
+  "alive_nodes": 2862,
   "latency_max_ms": 1500,
   "tcp_timeout": 3.5,
   "max_output_nodes": 8000,
   "country_stats": {
-    "AE": 27,
+    "AE": 25,
+    "AL": 1,
     "AM": 3,
     "AR": 1,
-    "AT": 5,
-    "AU": 10,
+    "AT": 7,
+    "AU": 7,
     "BA": 1,
-    "BE": 4,
+    "BE": 3,
     "BG": 19,
-    "BR": 2,
-    "BY": 7,
+    "BR": 4,
+    "BY": 6,
     "CA": 31,
     "CH": 51,
     "CL": 1,
     "CLOUDFLARE": 30,
-    "CLOUDFRONT": 5,
-    "CN": 46,
+    "CLOUDFRONT": 8,
+    "CN": 38,
     "CO": 1,
-    "CY": 4,
-    "CZ": 12,
-    "DE": 232,
+    "CY": 3,
+    "CZ": 8,
+    "DE": 233,
     "DK": 2,
-    "EE": 10,
-    "ES": 25,
+    "EE": 11,
+    "ES": 26,
     "FASTLY": 30,
-    "FI": 42,
-    "FR": 81,
-    "GB": 132,
-    "GE": 2,
-    "GOOGLE": 7,
-    "GR": 2,
-    "HK": 38,
+    "FI": 47,
+    "FR": 77,
+    "GB": 138,
+    "GE": 1,
+    "GOOGLE": 6,
+    "GR": 5,
+    "HK": 41,
     "HU": 3,
     "ID": 3,
-    "IE": 2,
+    "IE": 3,
     "IL": 4,
-    "IN": 10,
-    "IQ": 2,
-    "IR": 20,
-    "IS": 1,
-    "IT": 28,
-    "JP": 64,
-    "KG": 1,
-    "KR": 41,
-    "KZ": 16,
-    "LT": 13,
+    "IN": 9,
+    "IQ": 1,
+    "IR": 17,
+    "IT": 29,
+    "JP": 61,
+    "KR": 38,
+    "KZ": 11,
+    "LT": 8,
     "LU": 2,
-    "LV": 18,
-    "MD": 9,
-    "MH": 1,
-    "MX": 6,
-    "MY": 2,
-    "NL": 159,
-    "NO": 1,
+    "LV": 14,
+    "MD": 14,
+    "MN": 1,
+    "MO": 1,
+    "MX": 4,
+    "MY": 3,
+    "NL": 178,
+    "NO": 3,
     "NZ": 2,
-    "PH": 3,
-    "PL": 39,
-    "RO": 15,
-    "RS": 5,
-    "RU": 101,
+    "PH": 2,
+    "PL": 28,
+    "PT": 1,
+    "QA": 1,
+    "RO": 14,
+    "RS": 10,
+    "RU": 104,
     "SA": 2,
-    "SC": 6,
+    "SC": 7,
     "SE": 22,
-    "SG": 76,
-    "SI": 1,
-    "TH": 6,
-    "TR": 19,
-    "TW": 11,
-    "UA": 6,
-    "US": 350,
+    "SG": 69,
+    "TH": 5,
+    "TR": 25,
+    "TW": 13,
+    "UA": 3,
+    "US": 364,
     "UZ": 1,
-    "VN": 1,
+    "VN": 3,
     "ZA": 4,
     "XX": 9
   },
   "sources": [
     {
       "name": "blue2sea/public",
-      "count": 28,
-      "raw_count": 28,
+      "count": 32,
+      "raw_count": 32,
       "trimmed": 0,
       "status": "ok",
       "priority": 100
     },
     {
+      "name": "Danialsamadi/v2go",
+      "count": 636,
+      "raw_count": 636,
+      "trimmed": 0,
+      "status": "ok",
+      "priority": 90
+    },
+    {
       "name": "0xRadikal/Free-v2ray-Configs",
-      "count": 1515,
-      "raw_count": 1515,
+      "count": 1641,
+      "raw_count": 1641,
       "trimmed": 0,
       "status": "ok",
       "priority": 95
-    },
-    {
-      "name": "Au1rxx/free-vpn-subscriptions",
-      "count": 1751,
-      "raw_count": 1751,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 92
-    },
-    {
-      "name": "ALIILAPRO/v2rayNG-Config",
-      "count": 4084,
-      "raw_count": 4084,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 80
-    },
-    {
-      "name": "barry-far/V2ray-Config",
-      "count": 2500,
-      "raw_count": 8738,
-      "trimmed": 6238,
-      "status": "ok",
-      "priority": 70
     },
     {
       "name": "Mahdi0024/ProxyCollector",
@@ -140,28 +125,84 @@
       "priority": 65
     },
     {
-      "name": "chengaopan/AutoMergePublicNodes",
-      "count": 463,
-      "raw_count": 463,
+      "name": "rtwo2/FastNodes-top",
+      "count": 1000,
+      "raw_count": 1000,
       "trimmed": 0,
       "status": "ok",
-      "priority": 55
+      "priority": 85
     },
     {
-      "name": "Danialsamadi/v2go",
-      "count": 611,
-      "raw_count": 611,
+      "name": "cbusifabcap/daily_free_vpn",
+      "count": 2564,
+      "raw_count": 2564,
       "trimmed": 0,
       "status": "ok",
       "priority": 90
     },
     {
-      "name": "0xRadikal/Free-v2ray-Configs-fast",
-      "count": 982,
-      "raw_count": 982,
+      "name": "Au1rxx/free-vpn-subscriptions",
+      "count": 1751,
+      "raw_count": 1751,
       "trimmed": 0,
       "status": "ok",
+      "priority": 92
+    },
+    {
+      "name": "rtwo2/FastNodes-verified",
+      "count": 1500,
+      "raw_count": 2106,
+      "trimmed": 606,
+      "status": "ok",
+      "priority": 88
+    },
+    {
+      "name": "0xRadikal/Free-v2ray-Configs-fast",
+      "count": 1000,
+      "raw_count": 1090,
+      "trimmed": 90,
+      "status": "ok",
       "priority": 96
+    },
+    {
+      "name": "ALIILAPRO/v2rayNG-Config",
+      "count": 4091,
+      "raw_count": 4091,
+      "trimmed": 0,
+      "status": "ok",
+      "priority": 80
+    },
+    {
+      "name": "chengaopan/AutoMergePublicNodes",
+      "count": 468,
+      "raw_count": 468,
+      "trimmed": 0,
+      "status": "ok",
+      "priority": 55
+    },
+    {
+      "name": "MhdiTaheri/V2rayCollector",
+      "count": 1500,
+      "raw_count": 1893,
+      "trimmed": 393,
+      "status": "ok",
+      "priority": 60
+    },
+    {
+      "name": "barry-far/V2ray-Config",
+      "count": 2500,
+      "raw_count": 8764,
+      "trimmed": 6264,
+      "status": "ok",
+      "priority": 70
+    },
+    {
+      "name": "ermaozi/get_subscribe",
+      "count": 66,
+      "raw_count": 66,
+      "trimmed": 0,
+      "status": "ok",
+      "priority": 50
     },
     {
       "name": "roosterkid/openproxylist",
@@ -172,44 +213,12 @@
       "priority": 40
     },
     {
-      "name": "MhdiTaheri/V2rayCollector",
-      "count": 1500,
-      "raw_count": 1935,
-      "trimmed": 435,
+      "name": "0xRadikal/Free-v2ray-Configs-light",
+      "count": 3000,
+      "raw_count": 5454,
+      "trimmed": 2454,
       "status": "ok",
-      "priority": 60
-    },
-    {
-      "name": "rtwo2/FastNodes-top",
-      "count": 1000,
-      "raw_count": 1000,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 85
-    },
-    {
-      "name": "cbusifabcap/daily_free_vpn",
-      "count": 1787,
-      "raw_count": 1787,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 90
-    },
-    {
-      "name": "ermaozi/get_subscribe",
-      "count": 79,
-      "raw_count": 79,
-      "trimmed": 0,
-      "status": "ok",
-      "priority": 50
-    },
-    {
-      "name": "rtwo2/FastNodes-verified",
-      "count": 1500,
-      "raw_count": 1890,
-      "trimmed": 390,
-      "status": "ok",
-      "priority": 88
+      "priority": 94
     },
     {
       "name": "PuddinCat/BestClash",
@@ -220,28 +229,12 @@
       "priority": 30
     },
     {
-      "name": "0xRadikal/Free-v2ray-Configs-light",
-      "count": 3000,
-      "raw_count": 5386,
-      "trimmed": 2386,
-      "status": "ok",
-      "priority": 94
-    },
-    {
       "name": "rtwo2/FastNodes-everything",
       "count": 3000,
-      "raw_count": 203463,
-      "trimmed": 200463,
+      "raw_count": 204450,
+      "trimmed": 201450,
       "status": "ok",
       "priority": 82
-    },
-    {
-      "name": "Epodonios/v2ray-configs",
-      "count": 0,
-      "raw_count": 0,
-      "trimmed": 0,
-      "status": "failed",
-      "priority": 75
     },
     {
       "name": "ebrasha/free-v2ray-public-list-vless",
@@ -252,12 +245,28 @@
       "priority": 85
     },
     {
+      "name": "Epodonios/v2ray-configs",
+      "count": 0,
+      "raw_count": 0,
+      "trimmed": 0,
+      "status": "failed",
+      "priority": 75
+    },
+    {
       "name": "ebrasha/free-v2ray-public-list-vmess",
       "count": 0,
       "raw_count": 0,
       "trimmed": 0,
       "status": "failed",
       "priority": 80
+    },
+    {
+      "name": "Barabama/yudou66",
+      "count": 0,
+      "raw_count": 0,
+      "trimmed": 0,
+      "status": "failed",
+      "priority": 50
     },
     {
       "name": "Barabama/v2rayshare",
@@ -276,12 +285,12 @@
       "priority": 45
     },
     {
-      "name": "Barabama/yudou66",
+      "name": "Barabama/wenode",
       "count": 0,
       "raw_count": 0,
       "trimmed": 0,
       "status": "failed",
-      "priority": 50
+      "priority": 45
     },
     {
       "name": "NiREvil/vless",
@@ -290,14 +299,6 @@
       "trimmed": 0,
       "status": "failed",
       "priority": 35
-    },
-    {
-      "name": "Barabama/wenode",
-      "count": 0,
-      "raw_count": 0,
-      "trimmed": 0,
-      "status": "failed",
-      "priority": 45
     }
   ]
 }
